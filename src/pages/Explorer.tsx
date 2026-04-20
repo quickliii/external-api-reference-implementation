@@ -4,7 +4,7 @@ import { RequestBodyEditor } from '../components/RequestBodyEditor';
 import { ResponseViewer } from '../components/ResponseViewer';
 import { SentRequestViewer, type SentRequest } from '../components/SentRequestViewer';
 import { CodeSample } from '../components/CodeSample';
-import { sendRequest, type ApiResponse } from '../reference/auth/client';
+import { sendSignedRequest, type ApiResponse } from '../reference/auth/sendSignedRequest';
 import { BASE_URL, hasCredentials, type StoredConfig } from '../lib/storage';
 import { toUserError } from '../lib/errors';
 import type { EndpointTemplate } from '../lib/endpoints';
@@ -59,7 +59,7 @@ export function Explorer({ config, selectedEndpoint, onSelectEndpoint, bridgeBod
     setResponse(null);
     setSentRequest(null);
     try {
-      const result = await sendRequest({
+      const result = await sendSignedRequest({
         baseUrl: BASE_URL,
         method,
         path,

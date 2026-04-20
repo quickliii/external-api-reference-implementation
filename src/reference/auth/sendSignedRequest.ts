@@ -1,4 +1,4 @@
-import { buildAuthHeaders, type AuthCredentials } from './signing';
+import { generateRequestSignature, type AuthCredentials } from './generateRequestSignature';
 
 export type ApiResponse = {
   status: number;
@@ -11,7 +11,7 @@ export type ApiResponse = {
   durationMs: number;
 };
 
-export async function sendRequest(params: {
+export async function sendSignedRequest(params: {
   baseUrl: string;
   method: string;
   path: string;
@@ -32,7 +32,7 @@ export async function sendRequest(params: {
     }
   }
 
-  const auth = await buildAuthHeaders(credentials, method, path, effectiveBody);
+  const auth = await generateRequestSignature(credentials, method, path, effectiveBody);
 
   const requestHeaders: Record<string, string> = {
     ...auth.headers,

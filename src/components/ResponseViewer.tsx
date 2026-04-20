@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { ApiResponse } from '../reference/auth/client';
+import type { ApiResponse } from '../reference/auth/sendSignedRequest';
 import { CopyButton } from './CopyButton';
 import { TerminalIcon } from './icons';
 

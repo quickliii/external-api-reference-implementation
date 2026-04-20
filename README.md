@@ -64,7 +64,7 @@ To migrate:
 1. Remove your `Authorization: Bearer ...` header
 2. Generate an RSA key pair in PKCS#8 PEM format
 3. Register the public key with Quickli to get a Key ID
-4. Add the signing logic from `signing.ts` (or port it to your language)
+4. Add the signing logic from `generateRequestSignature.ts` (or port it to your language)
 5. Send the 5 `X-Auth-*` headers on every request
 
 ---

@@ -30,12 +30,12 @@ export type AuthCredentials = {
   privateKeyPem: string;
 };
 
-export type AuthResult = {
+type AuthResult = {
   headers: Record<string, string>;
   canonicalRequest: string;
 };
 
-export async function buildAuthHeaders(
+export async function generateRequestSignature(
   credentials: AuthCredentials,
   method: string,
   path: string,

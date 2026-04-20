@@ -5,7 +5,7 @@ type CodeSampleProps = {
   path: string;
 };
 
-// Mirrors signing.ts and client.ts — same function names, same flow
+// Mirrors generateRequestSignature.ts and sendSignedRequest.ts — same function names, same flow
 
 function generateCode(method: string, path: string): string {
   const hasBody = method === 'POST' || method === 'PUT';
@@ -21,9 +21,9 @@ function generateCode(method: string, path: string): string {
     '  privateKeyPem: "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----",',
     '};',
     '',
-    '// --- signing (mirrors src/lib/signing.ts) ---',
+    '// --- signing (mirrors src/lib/generateRequestSignature.ts) ---',
     '',
-    'function buildAuthHeaders(creds, method, path, body) {',
+    'function generateRequestSignature(creds, method, path, body) {',
     '  const timestamp = new Date().toISOString();',
     '',
     '  // SHA-256 hash of request body → hex',
@@ -43,7 +43,7 @@ function generateCode(method: string, path: string): string {
     '  };',
     '}',
     '',
-    '// --- send request (mirrors src/lib/client.ts) ---',
+    '// --- send signed request (mirrors src/lib/sendSignedRequest.ts) ---',
     '',
     `const method = "${method}";`,
     `const path   = "${path}";`,
@@ -54,7 +54,7 @@ function generateCode(method: string, path: string): string {
       : ['const body   = "";']),
     '',
     'const headers = {',
-    '  ...buildAuthHeaders(credentials, method, path, body),',
+    '  ...generateRequestSignature(credentials, method, path, body),',
     '  ...(body ? { "Content-Type": "application/json" } : {}),',
     '};',
     '',
