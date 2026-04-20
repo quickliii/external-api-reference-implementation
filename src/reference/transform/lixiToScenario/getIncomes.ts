@@ -1,4 +1,4 @@
-import type { LIXIScenarioContent, SaveableScenario } from '../types';
+import type { LIXIScenarioContent, QuickliApiScenario } from '../types';
 
 import { makeId, sum, assert, LIXIFrequencyToMonthly } from '../utils';
 
@@ -18,14 +18,14 @@ type LIXISelfEmployedDetails = NonNullable<
   LIXIEmploymentIncomeType[number]['selfEmployed']
 >['businessIncomeRecent'];
 
-type SaveableSEMPYearDetail =
-  SaveableScenario['self_employed_income'][number]['most_recent_year_details'];
-type SaveableBusinessLiabilityTypes =
-  SaveableScenario['self_employed_income'][number]['business_liabilities'][number]['facility_type'];
+type QuickliApiSEMPYearDetail =
+  QuickliApiScenario['self_employed_income'][number]['most_recent_year_details'];
+type QuickliApiBusinessLiabilityTypes =
+  QuickliApiScenario['self_employed_income'][number]['business_liabilities'][number]['facility_type'];
 
 const LIXI_TO_SAVED_INCOME_MAP: Record<
   LIXIOtherIncomeTypes,
-  keyof SaveableScenario['income'][number] | null
+  keyof QuickliApiScenario['income'][number] | null
 > = {
   Annuities: 'annuities',
   'Child Maintenance': 'child_maintenance',
@@ -55,10 +55,10 @@ const SEMP_FIELDS_TO_MERGE = [
   'lease_hp',
   'other',
   'personal_wages_before_tax',
-] satisfies (keyof SaveableSEMPYearDetail)[];
+] satisfies (keyof QuickliApiSEMPYearDetail)[];
 
 const BUSINESS_LIABILITY_TYPES_MAP: Partial<
-  Record<LIXILiabilityTypes, SaveableBusinessLiabilityTypes>
+  Record<LIXILiabilityTypes, QuickliApiBusinessLiabilityTypes>
 > = {
   Overdraft: 'overdraft',
   Lease: 'lease',
@@ -87,18 +87,18 @@ function mergeValues(values: (string | number | null | undefined)[]): string {
 }
 
 function mergeYearDetails(
-  yearDetails: SaveableSEMPYearDetail[],
-): SaveableSEMPYearDetail {
+  yearDetails: QuickliApiSEMPYearDetail[],
+): QuickliApiSEMPYearDetail {
   if (yearDetails.length === 0) throw new Error('mergeYearDetails: no year details provided');
   if (yearDetails.length === 1) return yearDetails[0];
 
-  const mergedYearDetails = {} as SaveableSEMPYearDetail;
+  const mergedYearDetails = {} as QuickliApiSEMPYearDetail;
 
   SEMP_FIELDS_TO_MERGE.forEach((field) => {
     if (field === 'personal_wages_before_tax') {
       const fieldValues = yearDetails.map((yd) => yd.personal_wages_before_tax);
       const newWages =
-        [] as SaveableSEMPYearDetail['personal_wages_before_tax'];
+        [] as QuickliApiSEMPYearDetail['personal_wages_before_tax'];
       const wagesSample = fieldValues[0];
 
       wagesSample.forEach((_, appIndex) => {
@@ -126,8 +126,8 @@ function mergeYearDetails(
  * when two applicants own the same company.
  */
 function validateSEMPEntities(
-  selfEmployedIncomes: SaveableScenario['self_employed_income'],
-): SaveableScenario['self_employed_income'] {
+  selfEmployedIncomes: QuickliApiScenario['self_employed_income'],
+): QuickliApiScenario['self_employed_income'] {
   if (!selfEmployedIncomes.length || selfEmployedIncomes.length === 1)
     return selfEmployedIncomes;
 
@@ -139,10 +139,10 @@ function validateSEMPEntities(
 
       return { ...acc, [sempId]: accumulatedSEMP };
     },
-    {} as { [key: string]: SaveableScenario['self_employed_income'] },
+    {} as { [key: string]: QuickliApiScenario['self_employed_income'] },
   );
 
-  const validatedSEMPEntities: SaveableScenario['self_employed_income'] = [];
+  const validatedSEMPEntities: QuickliApiScenario['self_employed_income'] = [];
 
   Object.keys(sempEntitiesById).forEach((sempId) => {
     const groupedSEMP = sempEntitiesById[sempId];
@@ -174,11 +174,11 @@ function validateSEMPEntities(
 }
 
 function getIncomes(apiScenario: LIXIScenarioContent): {
-  income: SaveableScenario['income'];
-  self_employed_income: SaveableScenario['self_employed_income'];
+  income: QuickliApiScenario['income'];
+  self_employed_income: QuickliApiScenario['self_employed_income'];
 } {
-  const newIncomes: SaveableScenario['income'] = [];
-  const newSEMPIncome: SaveableScenario['self_employed_income'] = [];
+  const newIncomes: QuickliApiScenario['income'] = [];
+  const newSEMPIncome: QuickliApiScenario['self_employed_income'] = [];
 
   // Personal incomes TODOs:
   // 1. Employment income (pay / PAYG)
@@ -218,7 +218,7 @@ function getIncomes(apiScenario: LIXIScenarioContent): {
     }
 
     assert(appId && appHouseholdIndex !== -1);
-    const appIncomeObject: SaveableScenario['income'][number] = {
+    const appIncomeObject: QuickliApiScenario['income'][number] = {
       id: appId,
       name: applicantName,
       which_household: appHouseholdIndex,
@@ -364,7 +364,7 @@ function getIncomes(apiScenario: LIXIScenarioContent): {
             'Sole Trader': 'sole_trader',
           } as const;
 
-          const newSEMP: SaveableScenario['self_employed_income'][number] = {
+          const newSEMP: QuickliApiScenario['self_employed_income'][number] = {
             id: job.selfEmployed.x_Employer || makeId(6),
             name: entityData?.companyName || '',
             applicant_ownership: ownership,
@@ -575,7 +575,7 @@ function getSelfEmployedDetails(
   apiSelfEmployedDetails: LIXISelfEmployedDetails,
   numberOfApps: number,
   applicantIndex: number,
-): SaveableSEMPYearDetail {
+): QuickliApiSEMPYearDetail {
   const personalWagesBeforeTax = Array(numberOfApps).fill('') as (
     | number
     | string
@@ -583,7 +583,7 @@ function getSelfEmployedDetails(
   let newSEMPDetails = {
     net_profit_before_tax: 0,
     personal_wages_before_tax: personalWagesBeforeTax,
-  } as SaveableSEMPYearDetail;
+  } as QuickliApiSEMPYearDetail;
 
   if (!apiSelfEmployedDetails) return newSEMPDetails;
 

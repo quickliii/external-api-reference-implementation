@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { TransformPanel } from '../components/TransformPanel';
 import { lixiToScenario, scenarioToLixi } from '../reference/transform';
 import { scenarioSchema, lixiSchema } from '../reference/transform/schema';
-import type { LIXIEnvelope, SaveableScenario } from '../reference/transform/types';
+import type { LIXIEnvelope, QuickliApiScenario } from '../reference/transform/types';
 
 type TransformSource = 'lixi' | 'scenario';
 type Status = 'idle' | 'transforming' | 'synced' | 'error';
@@ -217,7 +217,7 @@ export function Transform({ onTryInExplorer }: { onTryInExplorer: (body: string)
 
     const result = src === 'lixi'
       ? lixiToScenario(parsed as LIXIEnvelope)
-      : scenarioToLixi(parsed as unknown as SaveableScenario);
+      : scenarioToLixi(parsed as unknown as QuickliApiScenario);
 
     if (result.success) {
       if (src === 'lixi') {

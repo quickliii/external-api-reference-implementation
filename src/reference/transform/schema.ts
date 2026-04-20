@@ -16,7 +16,7 @@ const b: FieldSchema = { type: 'bool' };
 // ---- v3 Scenario schema ---------------------------------------------------
 
 const householdSchema: FieldSchema = {
-  type: 'SaveableHousehold',
+  type: 'QuickliApiHousehold',
   fields: {
     id: s,
     postcode: sn,
@@ -31,7 +31,7 @@ const householdSchema: FieldSchema = {
 };
 
 const incomeSchema: FieldSchema = {
-  type: 'SaveableIncome',
+  type: 'QuickliApiIncome',
   fields: {
     id: s, name: s, which_household: n,
     payg: sn, casual: sn, commission: sn,
@@ -53,7 +53,7 @@ const incomeSchema: FieldSchema = {
 };
 
 const liabilitySchema: FieldSchema = {
-  type: 'SaveableLiability',
+  type: 'QuickliApiLiability',
   fields: {
     id: s,
     loan_type: { type: "'credit_card' | 'overdraft' | 'lease' | 'car' | 'personal' | 'margin' | 'other'" },
@@ -63,7 +63,7 @@ const liabilitySchema: FieldSchema = {
 };
 
 const homeLoanSchema: FieldSchema = {
-  type: 'SaveableHomeLoan',
+  type: 'QuickliApiHomeLoan',
   fields: {
     id: s, ignore: b,
     product_type: { type: "'variable_package' | 'fixed_rate_N_year'" },
@@ -78,7 +78,7 @@ const homeLoanSchema: FieldSchema = {
 };
 
 const securitySchema: FieldSchema = {
-  type: 'SaveableSecurity',
+  type: 'QuickliApiSecurity',
   fields: {
     id: s, address: s, postcode: sn,
     property_purpose: { type: "'investment' | 'owner_occupied'" },
@@ -92,7 +92,7 @@ const securitySchema: FieldSchema = {
 };
 
 const securityLinkSchema: FieldSchema = {
-  type: 'SaveableHomeLoanSecurityLink',
+  type: 'QuickliApiHomeLoanSecurityLink',
   fields: {
     id: s,
     which_securities: { type: 'bool[]' },
@@ -102,7 +102,7 @@ const securityLinkSchema: FieldSchema = {
 };
 
 const selfEmployedDetailsSchema: FieldSchema = {
-  type: 'SaveableSelfEmployedDetails',
+  type: 'QuickliApiSelfEmployedDetails',
   fields: {
     year_ended: n, net_profit_before_tax: sn,
     non_recurring_income: sn, non_recurring_expenses: sn,
@@ -113,7 +113,7 @@ const selfEmployedDetailsSchema: FieldSchema = {
 };
 
 const selfEmployedBusinessLiabilitySchema: FieldSchema = {
-  type: 'SaveableSelfEmployedBusinessLiability',
+  type: 'QuickliApiSelfEmployedBusinessLiability',
   fields: {
     id: s,
     facility_type: { type: "'overdraft' | 'lease' | 'term_loan' | 'credit_card' | 'housing_loan' | 'commercial_bill' | 'line_of_credit' | 'other'" },
@@ -122,7 +122,7 @@ const selfEmployedBusinessLiabilitySchema: FieldSchema = {
 };
 
 const selfEmployedIncomeSchema: FieldSchema = {
-  type: 'SaveableSelfEmployedIncome',
+  type: 'QuickliApiSelfEmployedIncome',
   fields: {
     id: s, name: s,
     entity_type: { type: "'company' | 'sole_trader' | 'partnership' | 'trust'" },
@@ -130,12 +130,12 @@ const selfEmployedIncomeSchema: FieldSchema = {
     most_recent_year_details: selfEmployedDetailsSchema,
     previous_year_details: selfEmployedDetailsSchema,
     applicant_ownership: { type: 'number?[]' },
-    business_liabilities: { type: 'SaveableSelfEmployedBusinessLiability[]', items: selfEmployedBusinessLiabilitySchema },
+    business_liabilities: { type: 'QuickliApiSelfEmployedBusinessLiability[]', items: selfEmployedBusinessLiabilitySchema },
   },
 };
 
 const livingExpensesSchema: FieldSchema = {
-  type: 'SaveableLivingExpenses',
+  type: 'QuickliApiLivingExpenses',
   fields: {
     id: s, simple_basic_expense: sn, use_detailed_basic_expense: b,
     primary_residence: sn, phone_internet_media: sn, food_and_groceries: sn,
@@ -154,16 +154,16 @@ export const scenarioSchema: FieldSchema = {
   type: 'object',
   fields: {
     scenario: {
-      type: 'SaveableScenario',
+      type: 'QuickliApiScenario',
       fields: {
-        households: { type: 'SaveableHousehold[]', items: householdSchema },
-        income: { type: 'SaveableIncome[]', items: incomeSchema },
-        securities: { type: 'SaveableSecurity[]', items: securitySchema },
-        home_loan_security_links: { type: 'SaveableHomeLoanSecurityLink[]', items: securityLinkSchema },
-        self_employed_income: { type: 'SaveableSelfEmployedIncome[]', items: selfEmployedIncomeSchema },
-        home_loans: { type: 'SaveableHomeLoan[]', items: homeLoanSchema },
-        liabilities: { type: 'SaveableLiability[]', items: liabilitySchema },
-        living_expenses: { type: 'SaveableLivingExpenses[]', items: livingExpensesSchema },
+        households: { type: 'QuickliApiHousehold[]', items: householdSchema },
+        income: { type: 'QuickliApiIncome[]', items: incomeSchema },
+        securities: { type: 'QuickliApiSecurity[]', items: securitySchema },
+        home_loan_security_links: { type: 'QuickliApiHomeLoanSecurityLink[]', items: securityLinkSchema },
+        self_employed_income: { type: 'QuickliApiSelfEmployedIncome[]', items: selfEmployedIncomeSchema },
+        home_loans: { type: 'QuickliApiHomeLoan[]', items: homeLoanSchema },
+        liabilities: { type: 'QuickliApiLiability[]', items: liabilitySchema },
+        living_expenses: { type: 'QuickliApiLivingExpenses[]', items: livingExpensesSchema },
         additional_info: { type: 'object' },
       },
     },

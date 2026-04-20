@@ -427,9 +427,9 @@ export interface LIXIScenarioContent {
   relatedCompany?: LIXIRelatedCompany[];
 }
 
-// ---- Saveable types (output of lixiToScenario) ----------------------------
+// ---- QuickliApi types (output of lixiToScenario) ----------------------------
 
-export interface SaveableHousehold {
+export interface QuickliApiHousehold {
   id: string;
   postcode?: SmartNumber;
   status: 'single' | 'married' | 'defacto';
@@ -441,7 +441,7 @@ export interface SaveableHousehold {
   dependants_mode?: ('age' | 'dob')[];
 }
 
-export interface SaveableIncome {
+export interface QuickliApiIncome {
   id: string;
   name?: string;
   which_household: number;
@@ -482,7 +482,7 @@ export interface SaveableIncome {
   HECS_repayment?: SmartNumber;
 }
 
-export interface SaveableLiability {
+export interface QuickliApiLiability {
   id: string;
   loan_type: 'credit_card' | 'overdraft' | 'lease' | 'car' | 'personal' | 'margin' | 'other';
   limit?: SmartNumber;
@@ -493,7 +493,7 @@ export interface SaveableLiability {
   lender?: string;
 }
 
-export interface SaveableHomeLoan {
+export interface QuickliApiHomeLoan {
   id: string;
   ignore?: boolean;
   product_type:
@@ -521,7 +521,7 @@ export interface SaveableHomeLoan {
   monthly_repayment?: SmartNumber;
 }
 
-export interface SaveableSecurity {
+export interface QuickliApiSecurity {
   id: string;
   address?: string;
   postcode?: SmartNumber;
@@ -537,14 +537,14 @@ export interface SaveableSecurity {
   rental_yield?: SmartNumber;
 }
 
-export interface SaveableHomeLoanSecurityLink {
+export interface QuickliApiHomeLoanSecurityLink {
   id: string;
   which_securities: boolean[];
   which_home_loans: boolean[];
   which_color_id?: string;
 }
 
-export interface SaveableSelfEmployedDetails {
+export interface QuickliApiSelfEmployedDetails {
   year_ended?: number | '' | null;
   net_profit_before_tax?: SmartNumber;
   non_recurring_income?: SmartNumber;
@@ -558,7 +558,7 @@ export interface SaveableSelfEmployedDetails {
   personal_wages_before_tax: SmartNumber[];
 }
 
-export interface SaveableSelfEmployedBusinessLiability {
+export interface QuickliApiSelfEmployedBusinessLiability {
   id: string;
   facility_type:
     | 'overdraft'
@@ -576,18 +576,18 @@ export interface SaveableSelfEmployedBusinessLiability {
   monthly_repayment?: SmartNumber;
 }
 
-export interface SaveableSelfEmployedIncome {
+export interface QuickliApiSelfEmployedIncome {
   id: string;
   name?: string;
   entity_type: 'company' | 'sole_trader' | 'partnership' | 'trust';
   calculation_method: 'lender_default' | 'always_average' | 'use_most_recent_year';
-  most_recent_year_details: SaveableSelfEmployedDetails;
-  previous_year_details: SaveableSelfEmployedDetails;
+  most_recent_year_details: QuickliApiSelfEmployedDetails;
+  previous_year_details: QuickliApiSelfEmployedDetails;
   applicant_ownership: SmartNumber[];
-  business_liabilities: SaveableSelfEmployedBusinessLiability[];
+  business_liabilities: QuickliApiSelfEmployedBusinessLiability[];
 }
 
-export interface SaveableLivingExpenses {
+export interface QuickliApiLivingExpenses {
   id: string;
   simple_basic_expense?: SmartNumber;
   use_detailed_basic_expense?: boolean;
@@ -616,15 +616,15 @@ export interface SaveableLivingExpenses {
   other_non_hem?: SmartNumber;
 }
 
-export interface SaveableScenario {
-  households: SaveableHousehold[];
-  income: SaveableIncome[];
-  securities?: SaveableSecurity[];
-  home_loan_security_links?: SaveableHomeLoanSecurityLink[];
-  self_employed_income: SaveableSelfEmployedIncome[];
-  home_loans: SaveableHomeLoan[];
-  liabilities: SaveableLiability[];
-  living_expenses: SaveableLivingExpenses[];
+export interface QuickliApiScenario {
+  households: QuickliApiHousehold[];
+  income: QuickliApiIncome[];
+  securities?: QuickliApiSecurity[];
+  home_loan_security_links?: QuickliApiHomeLoanSecurityLink[];
+  self_employed_income: QuickliApiSelfEmployedIncome[];
+  home_loans: QuickliApiHomeLoan[];
+  liabilities: QuickliApiLiability[];
+  living_expenses: QuickliApiLivingExpenses[];
   additional_info?: {
     useDependantAges?: boolean;
     isStreamlinedRefinance?: boolean;

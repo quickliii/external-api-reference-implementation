@@ -1,4 +1,4 @@
-import type { LIXIScenarioContent, SaveableScenario } from '../types';
+import type { LIXIScenarioContent, QuickliApiScenario } from '../types';
 
 import getHomeLoansAndSecurities from './getHomeLoansAndRentals';
 import getHouseholdsAndLivingExpenses from './getHouseholdsAndLivingExpenses';
@@ -7,7 +7,7 @@ import getLiabilities from './getLiabilities';
 
 function convertLixiToScenario(
   apiScenario: LIXIScenarioContent,
-): SaveableScenario {
+): QuickliApiScenario {
   const { households, living_expenses } =
     getHouseholdsAndLivingExpenses(apiScenario);
 
@@ -15,7 +15,7 @@ function convertLixiToScenario(
   const { home_loans, securities, home_loan_security_links } =
     getHomeLoansAndSecurities(apiScenario);
   const { income, self_employed_income } = getIncomes(apiScenario);
-  const mongo_additional_info: SaveableScenario['additional_info'] = {
+  const mongo_additional_info: QuickliApiScenario['additional_info'] = {
     useDependantAges: households.some(
       (h) => !!h.dependants_age && h.dependants_age.some(Boolean),
     ),

@@ -1,4 +1,4 @@
-import type { SaveableScenario, ExportableLIXIScenario } from '../types';
+import type { QuickliApiScenario, ExportableLIXIScenario } from '../types';
 import { executeMath } from '../utils';
 
 const transactionMapping = {
@@ -13,7 +13,7 @@ const propertyTypeMap = {
   house: 'House',
 } as const;
 
-function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
+function getLIXIRentalAndLoans(quickliApiScenario: QuickliApiScenario): {
   realEstateAsset: ExportableLIXIScenario['realEstateAsset'];
   loanDetails: ExportableLIXIScenario['loanDetails'];
   address: ExportableLIXIScenario['address'];
@@ -23,7 +23,7 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
   const address: ExportableLIXIScenario['address'] = [];
 
   // Proposed loans
-  saveableScenario.home_loans.forEach((loan) => {
+  quickliApiScenario.home_loans.forEach((loan) => {
     if (loan.existing_or_proposed === 'proposed') {
       loanDetails.push({
         uniqueID: loan.id,
@@ -41,11 +41,11 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
               ? loan.applicant_tax_benefit
                   ?.map((ownership, i) => ({
                     percent: executeMath(ownership),
-                    x_Party: saveableScenario.income[i].id,
+                    x_Party: quickliApiScenario.income[i].id,
                   }))
                   .filter((o) => o.percent) || []
-              : saveableScenario.income.map((app) => ({
-                  percent: 100 / saveableScenario.income.length,
+              : quickliApiScenario.income.map((app) => ({
+                  percent: 100 / quickliApiScenario.income.length,
                   x_Party: app.id,
                 })) || [],
         },
@@ -76,7 +76,7 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
     }
   });
 
-  saveableScenario.securities?.forEach((sec, index) => {
+  quickliApiScenario.securities?.forEach((sec, index) => {
     const propertyPurpose = sec.property_purpose ?? 'owner_occupied';
 
     const secPrimaryPurpose =
@@ -86,7 +86,7 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
           ? 'Business'
           : 'Investment';
 
-    const homeLoanLinkForSec = saveableScenario.home_loan_security_links?.find(
+    const homeLoanLinkForSec = quickliApiScenario.home_loan_security_links?.find(
       (link) => !!link.which_securities?.[index],
     );
 
@@ -94,7 +94,7 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
       primaryPurpose: secPrimaryPurpose,
       primarySecurity:
         sec.transaction_type === 'purchasing' &&
-        saveableScenario.home_loans.some(
+        quickliApiScenario.home_loans.some(
           (l) =>
             l.existing_or_proposed === 'proposed' &&
             l.loan_type === 'investment',
@@ -122,7 +122,7 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
                 grossRentalFrequency: 'Weekly' as const,
                 netRentalAmount: null,
                 netRentalFrequency: 'Weekly' as const,
-                xOwner: saveableScenario.income[i].id,
+                xOwner: quickliApiScenario.income[i].id,
                 ...(sec.rental_type === 'boarder'
                   ? { boarderIncome: true }
                   : {}),
@@ -142,14 +142,14 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
           sec.rental_type !== 'short_term'
             ? sec.applicant_ownership
                 .map((_ownership, i) => ({
-                  percent: 100 / saveableScenario.income.length,
-                  x_Party: saveableScenario.income[i].id,
+                  percent: 100 / quickliApiScenario.income.length,
+                  x_Party: quickliApiScenario.income[i].id,
                 }))
                 .filter((o) => o.percent)
             : sec.applicant_ownership
                 .map((ownership, i) => ({
                   percent: executeMath(ownership),
-                  x_Party: saveableScenario.income[i].id,
+                  x_Party: quickliApiScenario.income[i].id,
                 }))
                 .filter((o) => o.percent),
       },
@@ -177,7 +177,7 @@ function getLIXIRentalAndLoans(saveableScenario: SaveableScenario): {
                     ).toFixed(2),
                   ) || null,
                 uniqueID: sec.id,
-                xOwner: saveableScenario.income[i].id,
+                xOwner: quickliApiScenario.income[i].id,
                 ...(sec.rental_type === 'boarder'
                   ? { boarderIncome: true }
                   : {}),

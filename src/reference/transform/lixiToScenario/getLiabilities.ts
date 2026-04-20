@@ -1,4 +1,4 @@
-import type { LIXIScenarioContent, SaveableScenario } from '../types';
+import type { LIXIScenarioContent, QuickliApiScenario } from '../types';
 
 import { makeId, LIXIFrequencyToMonthly } from '../utils';
 import financialInstitutionMap from '../financialInstitutionMap';
@@ -7,12 +7,12 @@ type LIXILiabilityTypes = NonNullable<
   LIXIScenarioContent['liability'][number]['type']
 >;
 
-type SaveableScenarioLiabilityTypes =
-  SaveableScenario['liabilities'][number]['loan_type'];
+type QuickliApiScenarioLiabilityTypes =
+  QuickliApiScenario['liabilities'][number]['loan_type'];
 
 const LIXI_TO_SAVED_LIABILITIES_MAP: Record<
   LIXILiabilityTypes,
-  SaveableScenarioLiabilityTypes | null // This is to not include them into the liabilities
+  QuickliApiScenarioLiabilityTypes | null // This is to not include them into the liabilities
 > = {
   'Amortising Home Loan': null,
   'Bank Guarantee': 'other',
@@ -62,9 +62,9 @@ function getLiabilityLenders(
 }
 
 function getLiabilities(apiScenario: LIXIScenarioContent): {
-  liabilities: SaveableScenario['liabilities'];
+  liabilities: QuickliApiScenario['liabilities'];
 } {
-  const newLiabilities: SaveableScenario['liabilities'] = [];
+  const newLiabilities: QuickliApiScenario['liabilities'] = [];
 
   const apiLiabilities = apiScenario.liability;
 

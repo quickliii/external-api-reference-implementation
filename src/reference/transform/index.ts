@@ -1,12 +1,12 @@
-export type { LIXIEnvelope, SaveableScenario, TransformResult } from './types';
+export type { LIXIEnvelope, QuickliApiScenario, TransformResult } from './types';
 
-import type { LIXIEnvelope, SaveableScenario, TransformResult } from './types';
+import type { LIXIEnvelope, QuickliApiScenario, TransformResult } from './types';
 
 import convertLixiToScenario from './lixiToScenario/convertLixiToScenario';
 import convertScenarioToLixi from './scenarioToLixi/convertScenarioToLixi';
 
 /**
- * Convert a LIXI payload to a SaveableScenario (v2 → v3).
+ * Convert a LIXI payload to a QuickliApiScenario (v2 → v3).
  *
  * This is a pure, synchronous function — no network calls, no credentials
  * required. The LIXI envelope must have the shape:
@@ -40,13 +40,13 @@ export function lixiToScenario(
 }
 
 /**
- * Convert a SaveableScenario to a LIXI payload (v3 → v2).
+ * Convert a QuickliApiScenario to a LIXI payload (v3 → v2).
  *
  * This is a pure, synchronous function — no network calls, no credentials
  * required.
  */
 export function scenarioToLixi(
-  input: SaveableScenario,
+  input: QuickliApiScenario,
 ): TransformResult {
   try {
     // Accept both { scenario: { … } } and the bare shape
@@ -55,7 +55,7 @@ export function scenarioToLixi(
       raw.scenario && typeof raw.scenario === 'object'
         ? raw.scenario
         : raw
-    ) as SaveableScenario;
+    ) as QuickliApiScenario;
 
     const requiredArrays = [
       'households',

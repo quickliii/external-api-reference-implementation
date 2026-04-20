@@ -71,7 +71,7 @@ To migrate:
 
 ## Schema Transform (v2 ↔ v3)
 
-v2 uses the LIXI standard format. v3 uses a Quickli-first SaveableScenario format.
+v2 uses the LIXI standard format. v3 uses a Quickli-first QuickliApiScenario format.
 
 Rather than documenting every field mapping here (which can drift), use the **Transform tool** in the app to convert your existing payloads and inspect the output. Not every field maps perfectly — the transform output is the best reference for what carries over and what needs manual adjustment.
 

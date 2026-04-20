@@ -1,4 +1,4 @@
-import type { LIXIScenarioContent, SaveableScenario } from '../types';
+import type { LIXIScenarioContent, QuickliApiScenario } from '../types';
 
 import { executeMath, makeId, assert, LIXIFrequencyToMonthly } from '../utils';
 
@@ -11,7 +11,7 @@ type LIXILivingExpensesCategories = NonNullable<
   >[number]['category']
 >;
 
-type SaveableScenarioLivingExpensesCategories =
+type QuickliApiScenarioLivingExpensesCategories =
   | 'primary_residence'
   | 'phone_internet_media'
   | 'food_and_groceries'
@@ -36,7 +36,7 @@ type SaveableScenarioLivingExpensesCategories =
 
 const LIXI_TO_SAVED_LIVING_EXPENSES_MAP: Record<
   LIXILivingExpensesCategories,
-  SaveableScenarioLivingExpensesCategories
+  QuickliApiScenarioLivingExpensesCategories
 > = {
   Childcare: 'childcare',
   'Public or Government Primary and Secondary Education': 'public_education',
@@ -81,7 +81,7 @@ const LIXI_TO_SAVED_LIVING_EXPENSES_MAP: Record<
 
 function getNewEmptyHousehold(
   id?: string,
-): SaveableScenario['households'][number] {
+): QuickliApiScenario['households'][number] {
   return {
     id: id || makeId(),
     status: 'single',
@@ -94,7 +94,7 @@ function getNewEmptyHousehold(
 
 function getNewEmptyLivingExpenses(
   id?: string,
-): SaveableScenario['living_expenses'][number] {
+): QuickliApiScenario['living_expenses'][number] {
   return {
     id: id || makeId(),
     primary_residence: 0,
@@ -104,11 +104,11 @@ function getNewEmptyLivingExpenses(
 }
 
 function getHouseholdsAndLivingExpenses(apiScenario: LIXIScenarioContent): {
-  households: SaveableScenario['households'];
-  living_expenses: SaveableScenario['living_expenses'];
+  households: QuickliApiScenario['households'];
+  living_expenses: QuickliApiScenario['living_expenses'];
 } {
-  const newLivingExpenses: SaveableScenario['living_expenses'] = [];
-  const newHouseholds: SaveableScenario['households'] = [];
+  const newLivingExpenses: QuickliApiScenario['living_expenses'] = [];
+  const newHouseholds: QuickliApiScenario['households'] = [];
 
   const apiHouseholds = apiScenario.household;
 

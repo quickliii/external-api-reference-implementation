@@ -1,4 +1,4 @@
-import type { SaveableScenario, ExportableLIXIScenario } from '../types';
+import type { QuickliApiScenario, ExportableLIXIScenario } from '../types';
 import { executeMath, sum } from '../utils';
 
 const HOUSEHOLD_STATUS_MAP = {
@@ -37,7 +37,7 @@ const OTHER_INCOME_MAP = {
   other_tax_free: 'Other Income',
 } as const;
 
-function getLIXIIncome(saveableScenario: SaveableScenario): {
+function getLIXIIncome(quickliApiScenario: QuickliApiScenario): {
   personApplicant: ExportableLIXIScenario['personApplicant'];
   otherIncome: ExportableLIXIScenario['otherIncome'];
   relatedCompany: ExportableLIXIScenario['relatedCompany'];
@@ -46,10 +46,10 @@ function getLIXIIncome(saveableScenario: SaveableScenario): {
   const otherIncome: ExportableLIXIScenario['otherIncome'] = [];
   const relatedCompany: ExportableLIXIScenario['relatedCompany'] = [];
 
-  saveableScenario.income.forEach((app, appIndex) => {
+  quickliApiScenario.income.forEach((app, appIndex) => {
     const applicantHouseholdId =
-      saveableScenario.households[app.which_household].id;
-    const household = saveableScenario.households[app.which_household];
+      quickliApiScenario.households[app.which_household].id;
+    const household = quickliApiScenario.households[app.which_household];
 
     // PAYG incomes
     const paygEmploymentObject: ExportableLIXIScenario['personApplicant'][number]['employment'][number]['pay'] =
@@ -331,7 +331,7 @@ function getLIXIIncome(saveableScenario: SaveableScenario): {
 
     // SEMP
     // Lets do this by only searching for specifically this applicant...
-    saveableScenario.self_employed_income.forEach((selfEmployed) => {
+    quickliApiScenario.self_employed_income.forEach((selfEmployed) => {
       const ownershipRatio =
         executeMath(selfEmployed.applicant_ownership[appIndex]) / 100;
       if (ownershipRatio) {
@@ -369,7 +369,7 @@ function getLIXIIncome(saveableScenario: SaveableScenario): {
           shareHolder: selfEmployed.applicant_ownership
             .map((ownership, i) => ({
               percentOwned: executeMath(ownership),
-              x_Shareholder: saveableScenario.income[i].id,
+              x_Shareholder: quickliApiScenario.income[i].id,
             }))
             .filter((shareholder) => !!shareholder.percentOwned),
         });
@@ -405,7 +405,7 @@ function getLIXIIncome(saveableScenario: SaveableScenario): {
 
 function getLIXIYearDetails(
   ownershipRatio: number,
-  yearDetails: SaveableScenario['self_employed_income'][number]['most_recent_year_details'],
+  yearDetails: QuickliApiScenario['self_employed_income'][number]['most_recent_year_details'],
 ): NonNullable<
   ExportableLIXIScenario['personApplicant'][number]['employment'][number]['selfEmployed']
 >['businessIncomeRecent'] {

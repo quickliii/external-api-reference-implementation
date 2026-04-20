@@ -1,9 +1,9 @@
-import type { SaveableScenario, ExportableLIXIScenario } from '../types';
+import type { QuickliApiScenario, ExportableLIXIScenario } from '../types';
 import { executeMath, makeId } from '../utils';
 
-type LiabilityTypes = SaveableScenario['liabilities'][number]['loan_type'];
+type LiabilityTypes = QuickliApiScenario['liabilities'][number]['loan_type'];
 type BusinessLiabilityTypes =
-  SaveableScenario['self_employed_income'][number]['business_liabilities'][number]['facility_type'];
+  QuickliApiScenario['self_employed_income'][number]['business_liabilities'][number]['facility_type'];
 type LIXILiabilityTypes = ExportableLIXIScenario['liability'][number]['type'];
 
 const LIABILITY_TYPES_MAP: Record<LiabilityTypes, LIXILiabilityTypes> = {
@@ -30,13 +30,13 @@ const BUSINESS_LIABILITY_TYPES_MAP: Record<
   other: 'Other',
 };
 
-function getLIXILiabilities(saveableScenario: SaveableScenario): {
+function getLIXILiabilities(quickliApiScenario: QuickliApiScenario): {
   liability: ExportableLIXIScenario['liability'];
 } {
   const liability: ExportableLIXIScenario['liability'] = [];
 
   // Personal liabilities
-  saveableScenario.liabilities.forEach((l) => {
+  quickliApiScenario.liabilities.forEach((l) => {
     const term =
       l.loan_type === 'credit_card'
         ? null
@@ -68,8 +68,8 @@ function getLIXILiabilities(saveableScenario: SaveableScenario): {
       ],
       percentOwned: {
         proportions: 'Equal',
-        owner: saveableScenario.income.map((app) => {
-          const proportionedOwnership = 100 / saveableScenario.income.length;
+        owner: quickliApiScenario.income.map((app) => {
+          const proportionedOwnership = 100 / quickliApiScenario.income.length;
           return {
             percent: executeMath(proportionedOwnership.toFixed(2)),
             x_Party: app.id,
@@ -82,7 +82,7 @@ function getLIXILiabilities(saveableScenario: SaveableScenario): {
 
   // We need to handle HECS too
 
-  saveableScenario.income.forEach((app) => {
+  quickliApiScenario.income.forEach((app) => {
     if (app.HECS) {
       liability.push({
         uniqueID: makeId(),
@@ -116,10 +116,10 @@ function getLIXILiabilities(saveableScenario: SaveableScenario): {
     }
   });
 
-  saveableScenario.home_loans.forEach((loan, index) => {
+  quickliApiScenario.home_loans.forEach((loan, index) => {
     if (loan.existing_or_proposed === 'existing') {
       const homeLoanLinkForLoan =
-        saveableScenario.home_loan_security_links?.find(
+        quickliApiScenario.home_loan_security_links?.find(
           (link) => !!link.which_home_loans?.[index],
         );
       liability.push({
@@ -159,11 +159,11 @@ function getLIXILiabilities(saveableScenario: SaveableScenario): {
               ? loan.applicant_tax_benefit
                   ?.map((ownership, i) => ({
                     percent: executeMath(ownership),
-                    x_Party: saveableScenario.income[i].id,
+                    x_Party: quickliApiScenario.income[i].id,
                   }))
                   .filter((o) => o.percent) || []
-              : saveableScenario.income.map((app) => ({
-                  percent: 100 / saveableScenario.income.length,
+              : quickliApiScenario.income.map((app) => ({
+                  percent: 100 / quickliApiScenario.income.length,
                   x_Party: app.id,
                 })),
         },
@@ -171,9 +171,9 @@ function getLIXILiabilities(saveableScenario: SaveableScenario): {
           homeLoanLinkForLoan && homeLoanLinkForLoan.which_securities
             ? (homeLoanLinkForLoan.which_securities
                 .map((securityLinkFlag, securityIndex) => {
-                  if (securityLinkFlag && saveableScenario.securities) {
+                  if (securityLinkFlag && quickliApiScenario.securities) {
                     return {
-                      x_Security: saveableScenario.securities[securityIndex].id,
+                      x_Security: quickliApiScenario.securities[securityIndex].id,
                     };
                   }
                   return null;
@@ -187,7 +187,7 @@ function getLIXILiabilities(saveableScenario: SaveableScenario): {
   });
 
   // Business liabilities
-  saveableScenario.self_employed_income.forEach((semp) => {
+  quickliApiScenario.self_employed_income.forEach((semp) => {
     semp.business_liabilities.forEach((bl) => {
       liability.push({
         uniqueID: bl.id || makeId(),

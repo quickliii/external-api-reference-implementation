@@ -1,4 +1,4 @@
-import type { SaveableScenario, ExportableLIXIScenario } from '../types';
+import type { QuickliApiScenario, ExportableLIXIScenario } from '../types';
 
 import getLIXIHousehold from './getLIXIHousehold';
 import getLIXIIncome from './getLIXIIncome';
@@ -9,13 +9,13 @@ import getLIXIRentalAndLoans from './getLIXIRentalAndLoans';
 // (e.g. a Zod schema parse) to catch malformed output before it leaves this layer.
 
 function convertScenarioToLixi(
-  saveableScenario: SaveableScenario,
+  quickliApiScenario: QuickliApiScenario,
 ): ExportableLIXIScenario {
   return {
-    ...getLIXIHousehold(saveableScenario),
-    ...getLIXIIncome(saveableScenario),
-    ...getLIXILiabilities(saveableScenario),
-    ...getLIXIRentalAndLoans(saveableScenario),
+    ...getLIXIHousehold(quickliApiScenario),
+    ...getLIXIIncome(quickliApiScenario),
+    ...getLIXILiabilities(quickliApiScenario),
+    ...getLIXIRentalAndLoans(quickliApiScenario),
   } satisfies ExportableLIXIScenario;
 }
 

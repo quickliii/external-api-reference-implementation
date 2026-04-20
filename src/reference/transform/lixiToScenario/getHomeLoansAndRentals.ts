@@ -1,4 +1,4 @@
-import type { LIXIScenarioContent, SaveableHomeLoan, SaveableScenario, SaveableSecurity } from '../types';
+import type { LIXIScenarioContent, QuickliApiHomeLoan, QuickliApiScenario, QuickliApiSecurity } from '../types';
 
 import { makeId, sum, LIXIFrequencyToMonthly } from '../utils';
 
@@ -45,14 +45,14 @@ const COLOR_IDS: (
 ];
 
 function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
-  home_loans: SaveableScenario['home_loans'];
-  securities: NonNullable<SaveableScenario['securities']>;
+  home_loans: QuickliApiScenario['home_loans'];
+  securities: NonNullable<QuickliApiScenario['securities']>;
   home_loan_security_links: NonNullable<
-    SaveableScenario['home_loan_security_links']
+    QuickliApiScenario['home_loan_security_links']
   >;
 } {
-  const newHomeLoans: SaveableScenario['home_loans'] = [];
-  const newSecurities: SaveableScenario['securities'] = [];
+  const newHomeLoans: QuickliApiScenario['home_loans'] = [];
+  const newSecurities: QuickliApiScenario['securities'] = [];
 
   const apiLoanDetails = apiScenario.loanDetails;
   const apiLiabilities = apiScenario.liability;
@@ -119,7 +119,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
 
     const lvr = apiLoanDetail.lvr || 80;
 
-    let product_type: SaveableHomeLoan['product_type'] = 'variable_package';
+    let product_type: QuickliApiHomeLoan['product_type'] = 'variable_package';
     if (interestType === 'Fixed') {
       const fixedYearsMap: Record<number, FixedProductType> = {
         1: 'fixed_rate_1_year',
@@ -148,7 +148,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
       }
     }
 
-    let newProposedLoanObject: SaveableHomeLoan = {
+    let newProposedLoanObject: QuickliApiHomeLoan = {
       id: apiLoanDetail.uniqueID,
       ignore: false,
       product_type,
@@ -160,7 +160,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
       lvr,
       use_generic_rate: false,
       is_tax_deductible: taxDeductible,
-    } as SaveableHomeLoan;
+    } as QuickliApiHomeLoan;
 
     const { borrowers } = apiLoanDetail;
     if (loanPurpose === 'investment' && !!borrowers) {
@@ -236,7 +236,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
         });
       }
 
-      const newExistingLoan: SaveableHomeLoan = {
+      const newExistingLoan: QuickliApiHomeLoan = {
         id: mortgage.uniqueID,
         existing_or_proposed: 'existing',
         loan_type:
@@ -396,7 +396,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
         (address) => address.uniqueID === apiRentalAsset.uniqueID,
       );
 
-      const newSecurityObject: SaveableSecurity = {
+      const newSecurityObject: QuickliApiSecurity = {
         id: apiRentalAsset.uniqueID,
         address: propertyAddressObject?.fullAddress || '',
         postcode:
@@ -446,7 +446,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
   const isSecurityHandled: Record<string, boolean> = {};
 
   const newHomeLoanSecurityLinks = newHomeLoans.reduce<
-    NonNullable<SaveableScenario['home_loan_security_links']>
+    NonNullable<QuickliApiScenario['home_loan_security_links']>
   >((acc, homeLoan) => {
     // current loan might be handled already, so skip
     if (isLoanHandled[homeLoan.id]) {

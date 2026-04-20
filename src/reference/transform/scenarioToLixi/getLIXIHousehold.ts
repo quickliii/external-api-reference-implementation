@@ -1,7 +1,7 @@
-import type { SaveableScenario, ExportableLIXIScenario } from '../types';
+import type { QuickliApiScenario, ExportableLIXIScenario } from '../types';
 import { executeMath, resolveDependantAge } from '../utils';
 
-const SAVEABLE_EXPENSES_CATEGORIES = [
+const QUICKLI_API_EXPENSES_CATEGORIES = [
   'simple_basic_expense',
   'primary_residence',
   'phone_internet_media',
@@ -27,7 +27,7 @@ const SAVEABLE_EXPENSES_CATEGORIES = [
   'other_non_hem',
 ] as const;
 
-const SAVEABLE_TO_LIXI_CATEGORIES = {
+const QUICKLI_API_TO_LIXI_CATEGORIES = {
   simple_basic_expense: null,
   primary_residence: 'Primary Residence Running Costs',
   phone_internet_media:
@@ -57,12 +57,12 @@ const SAVEABLE_TO_LIXI_CATEGORIES = {
   other_non_hem: 'Other',
 } as const;
 
-function getLIXIHousehold(saveableScenario: SaveableScenario): {
+function getLIXIHousehold(quickliApiScenario: QuickliApiScenario): {
   household: ExportableLIXIScenario['household'];
 } {
   const LIXIHousehold: ExportableLIXIScenario['household'] = [];
 
-  saveableScenario.households.forEach((savedHousehold, i) => {
+  quickliApiScenario.households.forEach((savedHousehold, i) => {
     const newLIXIHousehold: ExportableLIXIScenario['household'][number] = {
       uniqueID: savedHousehold.id,
       dependant: [],
@@ -83,7 +83,7 @@ function getLIXIHousehold(saveableScenario: SaveableScenario): {
         })
       : Array(savedHousehold.num_dependants).map((_) => ({ age: null }));
 
-    const savedLivingExpenses = saveableScenario.living_expenses[i];
+    const savedLivingExpenses = quickliApiScenario.living_expenses[i];
     const otherCommitmentList = new Set([
       'strata_fees_and_body_corporate_fees',
       'private_non_government_school_fees',
@@ -94,9 +94,9 @@ function getLIXIHousehold(saveableScenario: SaveableScenario): {
       'ongoing_rent',
       'other_non_hem',
     ]);
-    SAVEABLE_EXPENSES_CATEGORIES.forEach((category) => {
+    QUICKLI_API_EXPENSES_CATEGORIES.forEach((category) => {
       const amount = executeMath(savedLivingExpenses[category]);
-      const LIXICategory = SAVEABLE_TO_LIXI_CATEGORIES[category];
+      const LIXICategory = QUICKLI_API_TO_LIXI_CATEGORIES[category];
 
       if (amount && LIXICategory !== null) {
         if (otherCommitmentList.has(category)) {
