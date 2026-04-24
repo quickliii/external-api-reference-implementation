@@ -23,7 +23,7 @@ type QuickliApiSEMPYearDetail =
 type QuickliApiBusinessLiabilityTypes =
   QuickliApiScenario['self_employed_income'][number]['business_liabilities'][number]['facility_type'];
 
-const LIXI_TO_SAVED_INCOME_MAP: Record<
+const LIXI_TO_QUICKLI_API_INCOME_MAP: Record<
   LIXIOtherIncomeTypes,
   keyof QuickliApiScenario['income'][number] | null
 > = {
@@ -474,7 +474,7 @@ function getIncomes(apiScenario: LIXIScenarioContent): {
         );
 
         const incomeType = income.type as LIXIOtherIncomeTypes;
-        let newType = LIXI_TO_SAVED_INCOME_MAP[incomeType] as
+        let newType = LIXI_TO_QUICKLI_API_INCOME_MAP[incomeType] as
           | keyof typeof otherIncomeAccumulator
           | null;
 

@@ -49,12 +49,16 @@ function generateCode(method: string, path: string): string {
     `const path   = "${path}";`,
     ...(hasBody
       ? [
-          'const body   = JSON.stringify({ description: "Test scenario", scenario: {} });',
+          'const body = JSON.stringify({ description: "Test scenario", scenario: {} });',
+          '',
+          '// For signing, the server normalizes the parsed body:',
+          '// falsy values and empty objects/arrays sign as "".',
+          'const signingBody = body;',
         ]
-      : ['const body   = "";']),
+      : ['const body = "";', 'const signingBody = "";']),
     '',
     'const headers = {',
-    '  ...generateRequestSignature(credentials, method, path, body),',
+    '  ...generateRequestSignature(credentials, method, path, signingBody),',
     '  ...(body ? { "Content-Type": "application/json" } : {}),',
     '};',
     '',

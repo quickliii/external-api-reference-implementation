@@ -62,28 +62,28 @@ function getLIXIHousehold(quickliApiScenario: QuickliApiScenario): {
 } {
   const LIXIHousehold: ExportableLIXIScenario['household'] = [];
 
-  quickliApiScenario.households.forEach((savedHousehold, i) => {
+  quickliApiScenario.households.forEach((household, i) => {
     const newLIXIHousehold: ExportableLIXIScenario['household'][number] = {
-      uniqueID: savedHousehold.id,
+      uniqueID: household.id,
       dependant: [],
       expenseDetails: {
         livingExpense: [],
         OtherCommitment: [],
       },
     };
-    newLIXIHousehold.dependant = savedHousehold.dependants_age
-      ? savedHousehold.dependants_age.map((age, idx) => {
-          const mode = savedHousehold.dependants_mode?.[idx] ?? 'age';
+    newLIXIHousehold.dependant = household.dependants_age
+      ? household.dependants_age.map((age, idx) => {
+          const mode = household.dependants_mode?.[idx] ?? 'age';
           if (mode === 'dob') {
-            const dob = savedHousehold.dependants_dob?.[idx];
+            const dob = household.dependants_dob?.[idx];
             return { age: Math.floor(resolveDependantAge(dob, age, 'dob')) };
           }
           const isAgeZero = age === '0' || age === 0;
           return { age: isAgeZero ? 0 : executeMath(age) || null };
         })
-      : Array(savedHousehold.num_dependants).map((_) => ({ age: null }));
+      : Array(household.num_dependants).map((_) => ({ age: null }));
 
-    const savedLivingExpenses = quickliApiScenario.living_expenses[i];
+    const livingExpenses = quickliApiScenario.living_expenses[i];
     const otherCommitmentList = new Set([
       'strata_fees_and_body_corporate_fees',
       'private_non_government_school_fees',
@@ -95,7 +95,7 @@ function getLIXIHousehold(quickliApiScenario: QuickliApiScenario): {
       'other_non_hem',
     ]);
     QUICKLI_API_EXPENSES_CATEGORIES.forEach((category) => {
-      const amount = executeMath(savedLivingExpenses[category]);
+      const amount = executeMath(livingExpenses[category]);
       const LIXICategory = QUICKLI_API_TO_LIXI_CATEGORIES[category];
 
       if (amount && LIXICategory !== null) {
@@ -116,7 +116,7 @@ function getLIXIHousehold(quickliApiScenario: QuickliApiScenario): {
 
     });
 
-    if (savedLivingExpenses.use_notional_rent) {
+    if (livingExpenses.use_notional_rent) {
       newLIXIHousehold.expenseDetails.useNotionalRent = true;
     }
 

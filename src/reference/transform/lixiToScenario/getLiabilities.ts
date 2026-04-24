@@ -10,7 +10,7 @@ type LIXILiabilityTypes = NonNullable<
 type QuickliApiScenarioLiabilityTypes =
   QuickliApiScenario['liabilities'][number]['loan_type'];
 
-const LIXI_TO_SAVED_LIABILITIES_MAP: Record<
+const LIXI_TO_QUICKLI_API_LIABILITIES_MAP: Record<
   LIXILiabilityTypes,
   QuickliApiScenarioLiabilityTypes | null // This is to not include them into the liabilities
 > = {
@@ -100,7 +100,7 @@ function getLiabilities(apiScenario: LIXIScenarioContent): {
       );
       const rate = apiLiability.annualInterestRate || 0;
       const newType = apiLiability.type
-        ? LIXI_TO_SAVED_LIABILITIES_MAP[apiLiability.type]
+        ? LIXI_TO_QUICKLI_API_LIABILITIES_MAP[apiLiability.type]
         : null;
 
       const financialInstitution =
