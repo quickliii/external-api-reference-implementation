@@ -21,8 +21,8 @@ The two key parts of this repo are designed to be read and ported to your own st
 
 How to sign requests for the Quickli External API:
 
-- **[`signing.ts`](./src/reference/auth/signing.ts)** — RSA-SHA256 request signing: builds the canonical request, hashes the body, signs with your private key, and returns the five `X-Auth-*` headers
-- **[`client.ts`](./src/reference/auth/client.ts)** — Sends an authenticated request using the signing logic above
+- **[`generateRequestSignature.ts`](./src/reference/auth/generateRequestSignature.ts)** — RSA-SHA256 request signing: builds the canonical request, hashes the body, signs with your private key, and returns the five `X-Auth-*` headers
+- **[`sendSignedRequest.ts`](./src/reference/auth/sendSignedRequest.ts)** — Sends an authenticated request using the signing logic above
 
 ### [`src/reference/transform/`](./src/reference/transform/) — LIXI ↔ Scenario Transform
 
@@ -49,7 +49,7 @@ The API uses RSA-SHA256 request signing. Every request includes five `X-Auth-*` 
 
 The signature covers a canonical request: `METHOD\nPATH\nTIMESTAMP\nSHA256_HEX(BODY)`.
 
-See [`src/reference/auth/signing.ts`](./src/reference/auth/signing.ts) for the full implementation — it's designed to be portable to other languages.
+See [`src/reference/auth/generateRequestSignature.ts`](./src/reference/auth/generateRequestSignature.ts) for the full implementation — it's designed to be portable to other languages.
 
 ### Migrating from v2
 
@@ -64,7 +64,7 @@ To migrate:
 1. Remove your `Authorization: Bearer ...` header
 2. Generate an RSA key pair in PKCS#8 PEM format
 3. Register the public key with Quickli to get a Key ID
-4. Add the signing logic from `generateRequestSignature.ts` (or port it to your language)
+4. Add the signing logic from [`generateRequestSignature.ts`](./src/reference/auth/generateRequestSignature.ts) (or port it to your language)
 5. Send the 5 `X-Auth-*` headers on every request
 
 ---
@@ -98,7 +98,7 @@ v2 ↔ v3 conversion is available via the **Transform tool** in the app.
 
 1. Generate an RSA key pair (PKCS#8 format)
 2. Register the public key with your Quickli integration contact
-3. Update your auth code — see [`src/reference/auth/signing.ts`](./src/reference/auth/signing.ts)
+3. Update your auth code — see [`src/reference/auth/generateRequestSignature.ts`](./src/reference/auth/generateRequestSignature.ts)
 4. Test with `/api/v3/whoami` to verify signing works
 5. Convert your payloads using the Transform tool
 6. Create a scenario with `/api/v3/scenarios` and review the `calcReadiness` response
