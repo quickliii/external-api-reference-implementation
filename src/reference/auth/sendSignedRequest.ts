@@ -25,16 +25,16 @@ export async function sendSignedRequest(params: {
   // so stale editor text isn't accidentally signed and sent.
   const methodHasBody = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
 
-  // The wire body (sent over HTTP) and the signing body (hashed for the signature)
+  // The request body (sent over HTTP) and the signing body (hashed for the signature)
   // can differ: the server parses the JSON, then re-serializes with its own rules.
   // For standard objects they match, but for scalars/empties they diverge.
-  let wireBody = '';
+  let requestBody = '';
   let signingBody = '';
   if (methodHasBody && body?.trim()) {
     try {
-      wireBody = JSON.stringify(JSON.parse(body));
+      requestBody = JSON.stringify(JSON.parse(body));
     } catch {
-      wireBody = body;
+      requestBody = body;
     }
     signingBody = serializeRequestBody(body);
   }
@@ -43,7 +43,7 @@ export async function sendSignedRequest(params: {
 
   const requestHeaders: Record<string, string> = {
     ...auth.headers,
-    ...(wireBody ? { 'Content-Type': 'application/json' } : {}),
+    ...(requestBody ? { 'Content-Type': 'application/json' } : {}),
   };
 
   // In dev, requests go through Vite's proxy (relative path) to avoid CORS.
@@ -55,7 +55,7 @@ export async function sendSignedRequest(params: {
   const response = await fetch(url, {
     method,
     headers: requestHeaders,
-    ...(wireBody ? { body: wireBody } : {}),
+    ...(requestBody ? { body: requestBody } : {}),
   });
 
   const durationMs = Math.round(performance.now() - start);
@@ -78,7 +78,7 @@ export async function sendSignedRequest(params: {
     statusText: response.statusText,
     headers: responseHeaders,
     requestHeaders,
-    requestBody: wireBody,
+    requestBody,
     canonicalRequest: auth.canonicalRequest,
     body: responseBody,
     durationMs,
