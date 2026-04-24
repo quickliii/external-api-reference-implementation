@@ -15,12 +15,6 @@ function convertLixiToScenario(
   const { home_loans, securities, home_loan_security_links } =
     getHomeLoansAndSecurities(apiScenario);
   const { income, self_employed_income } = getIncomes(apiScenario);
-  const mongo_additional_info: QuickliApiScenario['additional_info'] = {
-    useDependantAges: households.some(
-      (h) => !!h.dependants_age && h.dependants_age.some(Boolean),
-    ),
-  };
-
   return {
     households,
     income,
@@ -30,7 +24,11 @@ function convertLixiToScenario(
     securities,
     home_loan_security_links,
     home_loans,
-    additional_info: mongo_additional_info,
+    additional_info: {
+      useDependantAges: households.some(
+        (h) => !!h.dependants_age && h.dependants_age.some(Boolean),
+      ),
+    },
   };
 }
 

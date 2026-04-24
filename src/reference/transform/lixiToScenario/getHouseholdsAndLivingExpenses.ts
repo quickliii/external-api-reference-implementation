@@ -34,7 +34,7 @@ type QuickliApiScenarioLivingExpensesCategories =
   | 'ongoing_rent'
   | 'other_non_hem';
 
-const LIXI_TO_SAVED_LIVING_EXPENSES_MAP: Record<
+const LIXI_TO_QUICKLI_API_LIVING_EXPENSES_MAP: Record<
   LIXILivingExpensesCategories,
   QuickliApiScenarioLivingExpensesCategories
 > = {
@@ -189,14 +189,14 @@ function getHouseholdsAndLivingExpenses(apiScenario: LIXIScenarioContent): {
     ].filter((exp) => exp.category !== 'Other');
 
     allExpenseDetails.forEach((expense) => {
-      const savedScenarioCategory =
-        LIXI_TO_SAVED_LIVING_EXPENSES_MAP[expense.category];
+      const quickliApiCategory =
+        LIXI_TO_QUICKLI_API_LIVING_EXPENSES_MAP[expense.category];
 
       const amount = expense.amount || 0;
       const amountPerMonth = LIXIFrequencyToMonthly(amount, expense.frequency);
 
       const totalAmount =
-        executeMath(newLivingExpensesObject[savedScenarioCategory]) +
+        executeMath(newLivingExpensesObject[quickliApiCategory]) +
         amountPerMonth;
 
       if (
@@ -206,7 +206,7 @@ function getHouseholdsAndLivingExpenses(apiScenario: LIXIScenarioContent): {
       ) {
         // Investment property expenses are handled at the security level, skip here
       } else {
-        newLivingExpensesObject[savedScenarioCategory] = totalAmount;
+        newLivingExpensesObject[quickliApiCategory] = totalAmount;
       }
     });
 

@@ -1,4 +1,5 @@
 import { generateRequestSignature, type AuthCredentials } from './generateRequestSignature';
+import { serializeRequestBody } from './serializeRequestBody';
 
 export type ApiResponse = {
   status: number;
@@ -23,20 +24,26 @@ export async function sendSignedRequest(params: {
   // Only POST/PUT/PATCH carry a request body — clear it for other methods
   // so stale editor text isn't accidentally signed and sent.
   const methodHasBody = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
-  let effectiveBody = '';
+
+  // The request body (sent over HTTP) and the signing body (hashed for the signature)
+  // can differ: the server parses the JSON, then re-serializes with its own rules.
+  // For standard objects they match, but for scalars/empties they diverge.
+  let requestBody = '';
+  let signingBody = '';
   if (methodHasBody && body?.trim()) {
     try {
-      effectiveBody = JSON.stringify(JSON.parse(body));
+      requestBody = JSON.stringify(JSON.parse(body));
     } catch {
-      effectiveBody = body;
+      requestBody = body;
     }
+    signingBody = serializeRequestBody(body);
   }
 
-  const auth = await generateRequestSignature(credentials, method, path, effectiveBody);
+  const auth = await generateRequestSignature(credentials, method, path, signingBody);
 
   const requestHeaders: Record<string, string> = {
     ...auth.headers,
-    ...(effectiveBody ? { 'Content-Type': 'application/json' } : {}),
+    ...(requestBody ? { 'Content-Type': 'application/json' } : {}),
   };
 
   // In dev, requests go through Vite's proxy (relative path) to avoid CORS.
@@ -48,7 +55,7 @@ export async function sendSignedRequest(params: {
   const response = await fetch(url, {
     method,
     headers: requestHeaders,
-    ...(effectiveBody ? { body: effectiveBody } : {}),
+    ...(requestBody ? { body: requestBody } : {}),
   });
 
   const durationMs = Math.round(performance.now() - start);
@@ -71,7 +78,7 @@ export async function sendSignedRequest(params: {
     statusText: response.statusText,
     headers: responseHeaders,
     requestHeaders,
-    requestBody: effectiveBody,
+    requestBody,
     canonicalRequest: auth.canonicalRequest,
     body: responseBody,
     durationMs,
