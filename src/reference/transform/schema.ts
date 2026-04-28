@@ -62,17 +62,31 @@ const liabilitySchema: FieldSchema = {
   },
 };
 
-const homeLoanSchema: FieldSchema = {
-  type: 'QuickliApiHomeLoan',
+const homeLoanBaseFields: Record<string, FieldSchema> = {
+  id: s, ignore: b,
+  product_type: { type: "'variable_package' | 'fixed_rate_N_year'" },
+  loan_type: s,
+  loan_amount: sn, actual_rate: sn, term: sn, interest_only_period: sn,
+  applicant_tax_benefit: { type: 'number?[]' },
+  which_rentals: { type: 'bool[]' },
+  is_tax_deductible: b,
+  resi_or_commercial: { type: "'residential' | 'commercial'" },
+  ownership_modes: { type: "Record<string, 'auto' | 'manual'>" },
+};
+
+const proposedHomeLoanSchema: FieldSchema = {
+  type: 'QuickliApiProposedHomeLoan',
   fields: {
-    id: s, ignore: b,
-    product_type: { type: "'variable_package' | 'fixed_rate_N_year'" },
-    existing_or_proposed: { type: "'existing' | 'proposed'" },
-    loan_type: s,
-    loan_amount: sn, actual_rate: sn, term: sn, interest_only_period: sn, lvr: sn,
-    use_generic_rate: b, is_tax_deductible: b,
-    applicant_tax_benefit: { type: 'number?[]' },
-    which_rentals: { type: 'bool[]' },
+    ...homeLoanBaseFields,
+    lvr: sn, lvr_behavior: s, override_rates: b, use_generic_rate: b,
+    lender_apps_only_product_name: s,
+  },
+};
+
+const existingHomeLoanSchema: FieldSchema = {
+  type: 'QuickliApiExistingHomeLoan',
+  fields: {
+    ...homeLoanBaseFields,
     lender: s, loan_balance: sn, monthly_repayment: sn,
   },
 };
@@ -95,9 +109,9 @@ const securityLinkSchema: FieldSchema = {
   type: 'QuickliApiHomeLoanSecurityLink',
   fields: {
     id: s,
-    which_securities: { type: 'bool[]' },
-    which_home_loans: { type: 'bool[]' },
-    which_color_id: s,
+    which_security_ids: { type: 'string[]' },
+    which_proposed_home_loan_ids: { type: 'string[]' },
+    which_existing_home_loan_ids: { type: 'string[]' },
   },
 };
 
@@ -161,7 +175,8 @@ export const scenarioSchema: FieldSchema = {
         securities: { type: 'QuickliApiSecurity[]', items: securitySchema },
         home_loan_security_links: { type: 'QuickliApiHomeLoanSecurityLink[]', items: securityLinkSchema },
         self_employed_income: { type: 'QuickliApiSelfEmployedIncome[]', items: selfEmployedIncomeSchema },
-        home_loans: { type: 'QuickliApiHomeLoan[]', items: homeLoanSchema },
+        proposed_home_loans: { type: 'QuickliApiProposedHomeLoan[]', items: proposedHomeLoanSchema },
+        existing_home_loans: { type: 'QuickliApiExistingHomeLoan[]', items: existingHomeLoanSchema },
         liabilities: { type: 'QuickliApiLiability[]', items: liabilitySchema },
         living_expenses: { type: 'QuickliApiLivingExpenses[]', items: livingExpensesSchema },
         additional_info: { type: 'object' },

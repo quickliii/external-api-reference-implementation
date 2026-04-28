@@ -32,7 +32,8 @@ const EXAMPLES: Example[] = [
         income: [{ id: 'inc-1', which_household: 0, payg: 80000 }],
         living_expenses: [{ id: 'hh-1', primary_residence: 0, use_detailed_basic_expense: true, simple_basic_expense: 0 }],
         liabilities: [],
-        home_loans: [],
+        proposed_home_loans: [],
+        existing_home_loans: [],
         self_employed_income: [],
       },
     },
@@ -56,12 +57,14 @@ const EXAMPLES: Example[] = [
           applicant_ownership: [100],
           business_liabilities: [{ id: 'bl-1', facility_type: 'overdraft', limit: 20000, actual_rate: 8.5, monthly_repayment: 400 }],
         }],
-        home_loans: [
-          { id: 'hl-1', product_type: 'variable_package', existing_or_proposed: 'existing', loan_type: 'owner_occupied', loan_amount: 500000, loan_balance: 450000, actual_rate: 6.2, term: 28 },
-          { id: 'hl-2', product_type: 'variable_package', existing_or_proposed: 'proposed', loan_type: 'owner_occupied', loan_amount: 600000, loan_balance: 600000, term: 30 , lvr: 80},
+        existing_home_loans: [
+          { id: 'hl-1', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 500000, loan_balance: 450000, actual_rate: 6.2, term: 28 },
+        ],
+        proposed_home_loans: [
+          { id: 'hl-2', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 600000, term: 30, lvr: 80 },
         ],
         securities: [{ id: 'sec-1', property_purpose: 'owner_occupied', property_type: 'house', transaction_type: 'owns_with_mortgage', value: 750000, applicant_ownership: [100] }],
-        home_loan_security_links: [{ id: 'link-1', which_color_id: 'link-light-color-1', which_securities: [true], which_home_loans: [true, false] }],
+        home_loan_security_links: [{ id: 'link-1', which_security_ids: ['sec-1'], which_existing_home_loan_ids: ['hl-1'], which_proposed_home_loan_ids: [] }],
       },
     },
   },

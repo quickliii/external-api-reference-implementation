@@ -1,4 +1,11 @@
-import type { LIXIScenarioContent, QuickliApiHomeLoan, QuickliApiScenario, QuickliApiSecurity } from '../types';
+import type {
+  LIXIScenarioContent,
+  QuickliApiProposedHomeLoan,
+  QuickliApiExistingHomeLoan,
+  QuickliApiScenario,
+  QuickliApiSecurity,
+  HomeLoanProductType,
+} from '../types';
 
 import { makeId, sum, LIXIFrequencyToMonthly } from '../utils';
 
@@ -26,33 +33,17 @@ function getTermUnitToYearMultiplier(
   return 1;
 }
 
-const COLOR_IDS: (
-  | `link-light-color-${1 | 2 | 3 | 4 | 5 | 6}`
-  | `link-dark-color-${1 | 2 | 3 | 4 | 5 | 6}`
-)[] = [
-  'link-light-color-1',
-  'link-light-color-2',
-  'link-light-color-3',
-  'link-light-color-4',
-  'link-light-color-5',
-  'link-light-color-6',
-  'link-dark-color-1',
-  'link-dark-color-2',
-  'link-dark-color-3',
-  'link-dark-color-4',
-  'link-dark-color-5',
-  'link-dark-color-6',
-];
-
 function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
-  home_loans: QuickliApiScenario['home_loans'];
+  proposed_home_loans: QuickliApiScenario['proposed_home_loans'];
+  existing_home_loans: QuickliApiScenario['existing_home_loans'];
   securities: NonNullable<QuickliApiScenario['securities']>;
   home_loan_security_links: NonNullable<
     QuickliApiScenario['home_loan_security_links']
   >;
 } {
-  const newHomeLoans: QuickliApiScenario['home_loans'] = [];
-  const newSecurities: QuickliApiScenario['securities'] = [];
+  const newProposedLoans: QuickliApiProposedHomeLoan[] = [];
+  const newExistingLoans: QuickliApiExistingHomeLoan[] = [];
+  const newSecurities: QuickliApiSecurity[] = [];
 
   const apiLoanDetails = apiScenario.loanDetails;
   const apiLiabilities = apiScenario.liability;
@@ -65,8 +56,6 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
   // 4. Set the rental links + ownerships for existing loans
 
   const loanAndSecurityPairs: { [loanId: string]: string[] } = {};
-  const loansIndexMap: { [loanId: string]: number } = {};
-  const proposedLoansIds: string[] = [];
 
   const applicantIndexMap = apiScenario.personApplicant.reduce(
     (mapObject, app, index) => ({ ...mapObject, [app.uniqueID]: index }),
@@ -119,7 +108,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
 
     const lvr = apiLoanDetail.lvr || 80;
 
-    let product_type: QuickliApiHomeLoan['product_type'] = 'variable_package';
+    let product_type: HomeLoanProductType = 'variable_package';
     if (interestType === 'Fixed') {
       const fixedYearsMap: Record<number, FixedProductType> = {
         1: 'fixed_rate_1_year',
@@ -148,11 +137,10 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
       }
     }
 
-    let newProposedLoanObject: QuickliApiHomeLoan = {
+    let newProposedLoanObject: QuickliApiProposedHomeLoan = {
       id: apiLoanDetail.uniqueID,
       ignore: false,
       product_type,
-      existing_or_proposed: 'proposed',
       loan_type: loanPurpose,
       loan_amount: amountRequested,
       term: totalTerm,
@@ -160,7 +148,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
       lvr,
       use_generic_rate: false,
       is_tax_deductible: taxDeductible,
-    } as QuickliApiHomeLoan;
+    };
 
     const { borrowers } = apiLoanDetail;
     if (loanPurpose === 'investment' && !!borrowers) {
@@ -178,15 +166,13 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
         applicant_tax_benefit: appTaxBenefit,
       };
     }
-    const newIndex = newHomeLoans.push(newProposedLoanObject) - 1;
-    loansIndexMap[apiLoanDetail.uniqueID] = newIndex;
+    newProposedLoans.push(newProposedLoanObject);
     loanAndSecurityPairs[apiLoanDetail.uniqueID] = [];
     if (primaryRental)
       loanAndSecurityPairs[apiLoanDetail.uniqueID].push(primaryRental.uniqueID);
-    proposedLoansIds.push(apiLoanDetail.uniqueID);
   });
 
-  // 2.Existing loans
+  // 2. Existing loans
   apiLiabilities
     .filter((apiLiability) => apiLiability.type === 'Mortgage Loan')
     .forEach((mortgage) => {
@@ -236,9 +222,8 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
         });
       }
 
-      const newExistingLoan: QuickliApiHomeLoan = {
+      const newExistingLoan: QuickliApiExistingHomeLoan = {
         id: mortgage.uniqueID,
-        existing_or_proposed: 'existing',
         loan_type:
           mortgage.loanPurpose?.primaryPurpose === 'Investment Residential' ||
           mortgage.loanPurpose?.primaryPurpose === 'Investment Non Residential'
@@ -256,8 +241,7 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
         is_tax_deductible: !!mortgage.repayment?.some((r) => r.taxDeductible),
         ignore: mortgage.clearingFromThisLoan || false,
       };
-      const newIndex = newHomeLoans.push(newExistingLoan) - 1;
-      loansIndexMap[mortgage.uniqueID] = newIndex;
+      newExistingLoans.push(newExistingLoan);
 
       const { security } = mortgage;
       const securityPairs: string[] = [];
@@ -417,106 +401,93 @@ function getHomeLoansAndSecurities(apiScenario: LIXIScenarioContent): {
     }
   });
 
-  // 4. Still do the old rental linking, we'll need this
-  newHomeLoans.forEach((loan) => {
-    const newWhichRentals = Array(newSecurities.length).fill(false);
-    if (loan.existing_or_proposed === 'proposed') {
-      newSecurities.forEach((rental, rIndex) => {
-        if (
-          rental.transaction_type === 'purchasing' ||
-          loanAndSecurityPairs[loan.id].includes(rental.id)
-        ) {
-          newWhichRentals[rIndex] = true;
-        }
-      });
-    } else {
-      newSecurities.forEach((rental, rIndex) => {
-        if (loanAndSecurityPairs[loan.id].includes(rental.id)) {
-          newWhichRentals[rIndex] = true;
-        }
-      });
-    }
-    loan.which_rentals = newWhichRentals;
+  // 4. Build which_rentals internally for linking (still needed for grouping)
+  // We need a combined list of all loans for the grouping algorithm
+  type LoanWithRentals = { id: string; which_rentals: boolean[]; isProposed: boolean };
+  const allLoansForLinking: LoanWithRentals[] = [];
+
+  newProposedLoans.forEach((loan) => {
+    const whichRentals = newSecurities.map((rental) =>
+      rental.transaction_type === 'purchasing' ||
+      (loanAndSecurityPairs[loan.id] ?? []).includes(rental.id),
+    );
+    loan.which_rentals = whichRentals;
+    allLoansForLinking.push({ id: loan.id, which_rentals: whichRentals, isProposed: true });
   });
 
-  // 5. do the new linking
-  // Make a mutable copy so .shift() doesn't mutate the module-level constant
-  const colorIds = [...COLOR_IDS];
+  newExistingLoans.forEach((loan) => {
+    const whichRentals = newSecurities.map((rental) =>
+      (loanAndSecurityPairs[loan.id] ?? []).includes(rental.id),
+    );
+    loan.which_rentals = whichRentals;
+    allLoansForLinking.push({ id: loan.id, which_rentals: whichRentals, isProposed: false });
+  });
+
+  // 5. Build ID-based security links
   const isLoanHandled: Record<string, boolean> = {};
   const isSecurityHandled: Record<string, boolean> = {};
 
-  const newHomeLoanSecurityLinks = newHomeLoans.reduce<
+  const newHomeLoanSecurityLinks = allLoansForLinking.reduce<
     NonNullable<QuickliApiScenario['home_loan_security_links']>
-  >((acc, homeLoan) => {
-    // current loan might be handled already, so skip
-    if (isLoanHandled[homeLoan.id]) {
+  >((acc, loanEntry) => {
+    if (isLoanHandled[loanEntry.id]) {
       return acc;
     }
 
     // find securities linked to home loan
     const securitiesLinkedToHl = newSecurities
       .map((sec, secIndex) =>
-        homeLoan.which_rentals && homeLoan.which_rentals[secIndex]
+        loanEntry.which_rentals[secIndex]
           ? { index: secIndex, id: sec.id }
           : null,
       )
       .filter((index) => index !== null);
 
-    // skip if all securities linked has been handled
+    // skip if all securities linked have been handled
     if (securitiesLinkedToHl.every((rental) => isSecurityHandled[rental.id])) {
       return acc;
     }
 
-    // ALL checks done, now make an object to track the linkage
-    const loanSecurityLink = {
-      id: makeId(),
-      which_home_loans: {} as Record<string, boolean>,
-      which_securities: {} as Record<string, boolean>,
-    };
-
-    const allHomeLoansInvolved = newHomeLoans.filter((homeLoan) =>
+    // ALL checks done, now collect all loans and securities in this group
+    const allLoansInvolved = allLoansForLinking.filter((entry) =>
       securitiesLinkedToHl.some(
-        (linkedSecurity) =>
-          homeLoan.which_rentals &&
-          homeLoan.which_rentals[linkedSecurity.index],
+        (linkedSecurity) => entry.which_rentals[linkedSecurity.index],
       ),
     );
-    // update tracker
-    allHomeLoansInvolved.forEach((homeLoan) => {
-      isLoanHandled[homeLoan.id] = true;
-      loanSecurityLink.which_home_loans[homeLoan.id] = true;
+    allLoansInvolved.forEach((entry) => {
+      isLoanHandled[entry.id] = true;
     });
 
-    const allRentalsInvolved = newSecurities.filter((_rental, rentalIndex) =>
-      allHomeLoansInvolved.some(
-        (homeLoan) =>
-          homeLoan.which_rentals && homeLoan.which_rentals[rentalIndex],
-      ),
+    const allSecuritiesInvolved = newSecurities.filter((_sec, secIndex) =>
+      allLoansInvolved.some((entry) => entry.which_rentals[secIndex]),
     );
-    // update tracker
-    allRentalsInvolved.forEach((rental) => {
-      isSecurityHandled[rental.id] = true;
-      loanSecurityLink.which_securities[rental.id] = true;
+    allSecuritiesInvolved.forEach((sec) => {
+      isSecurityHandled[sec.id] = true;
     });
+
+    // Build ID-based link
+    const which_security_ids = allSecuritiesInvolved.map((sec) => sec.id);
+    const which_proposed_home_loan_ids = allLoansInvolved
+      .filter((entry) => entry.isProposed)
+      .map((entry) => entry.id);
+    const which_existing_home_loan_ids = allLoansInvolved
+      .filter((entry) => !entry.isProposed)
+      .map((entry) => entry.id);
 
     return [
       ...acc,
       {
-        id: loanSecurityLink.id,
-        which_securities: newSecurities.map(
-          (rental) => !!loanSecurityLink.which_securities[rental.id],
-        ),
-        which_home_loans: newHomeLoans.map(
-          (homeLoan) => !!loanSecurityLink.which_home_loans[homeLoan.id],
-        ),
-        // get the first one and remove + default - but should be very very rare to exhaust all 12 security / loan link colors
-        which_color_id: colorIds.shift() ?? 'link-dark-color-6',
+        id: makeId(),
+        which_security_ids,
+        which_proposed_home_loan_ids,
+        which_existing_home_loan_ids,
       },
     ];
   }, []);
 
   return {
-    home_loans: newHomeLoans,
+    proposed_home_loans: newProposedLoans,
+    existing_home_loans: newExistingLoans,
     securities: newSecurities,
     home_loan_security_links: newHomeLoanSecurityLinks,
   };

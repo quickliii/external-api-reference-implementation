@@ -50,7 +50,7 @@ export function scenarioToLixi(
 ): TransformResult {
   try {
     // Accept both { scenario: { … } } and the bare shape
-    const raw = input as Record<string, unknown>;
+    const raw = input as unknown as Record<string, unknown>;
     const scenario = (
       raw.scenario && typeof raw.scenario === 'object'
         ? raw.scenario
@@ -61,13 +61,14 @@ export function scenarioToLixi(
       'households',
       'income',
       'self_employed_income',
-      'home_loans',
+      'proposed_home_loans',
+      'existing_home_loans',
       'liabilities',
       'living_expenses',
     ] as const;
 
     const missing = requiredArrays.filter(
-      (key) => !Array.isArray((scenario as Record<string, unknown>)?.[key]),
+      (key) => !Array.isArray((scenario as unknown as Record<string, unknown>)?.[key]),
     );
 
     if (missing.length > 0) {

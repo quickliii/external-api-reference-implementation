@@ -116,74 +116,61 @@ function getLIXILiabilities(quickliApiScenario: QuickliApiScenario): {
     }
   });
 
-  quickliApiScenario.home_loans.forEach((loan, index) => {
-    if (loan.existing_or_proposed === 'existing') {
-      const homeLoanLinkForLoan =
-        quickliApiScenario.home_loan_security_links?.find(
-          (link) => !!link.which_home_loans?.[index],
-        );
-      liability.push({
-        uniqueID: loan.id,
-        annualInterestRate: executeMath(loan.actual_rate) || null,
-        creditLimit: executeMath(loan.loan_amount) || null,
-        outstandingBalance: executeMath(loan.loan_balance) || null,
-        type: 'Mortgage Loan',
-        loanPurpose: {
-          primaryPurpose:
-            loan.loan_type === 'owner_occupied'
-              ? 'Owner Occupied'
-              : 'Investment Residential',
+  quickliApiScenario.existing_home_loans.forEach((loan) => {
+    // Find security link that references this existing loan by ID
+    const homeLoanLinkForLoan =
+      quickliApiScenario.home_loan_security_links?.find(
+        (link) => link.which_existing_home_loan_ids?.includes(loan.id),
+      );
+    liability.push({
+      uniqueID: loan.id,
+      annualInterestRate: executeMath(loan.actual_rate) || null,
+      creditLimit: executeMath(loan.loan_amount) || null,
+      outstandingBalance: executeMath(loan.loan_balance) || null,
+      type: 'Mortgage Loan',
+      loanPurpose: {
+        primaryPurpose:
+          loan.loan_type === 'owner_occupied'
+            ? 'Owner Occupied'
+            : 'Investment Residential',
+      },
+      remainingTerm: {
+        duration: executeMath(loan.term) || null,
+        interestOnlyDuration: executeMath(loan.interest_only_period) || null,
+        units: 'Years',
+      },
+      originalTerm: null,
+      repayment: [
+        {
+          paymentType: loan.interest_only_period
+            ? 'Interest Only'
+            : 'Principal and Interest',
+          repaymentAmount: executeMath(loan.monthly_repayment) || null,
+          repaymentFrequency: 'Monthly',
+          taxDeductible:
+            (loan.is_tax_deductible && loan.loan_type === 'investment') ||
+            false,
         },
-        remainingTerm: {
-          duration: executeMath(loan.term) || null,
-          interestOnlyDuration: executeMath(loan.interest_only_period) || null,
-          units: 'Years',
-        },
-        originalTerm: null,
-        repayment: [
-          {
-            paymentType: loan.interest_only_period
-              ? 'Interest Only'
-              : 'Principal and Interest',
-            repaymentAmount: executeMath(loan.monthly_repayment) || null,
-            repaymentFrequency: 'Monthly',
-            taxDeductible:
-              (loan.is_tax_deductible && loan.loan_type === 'investment') ||
-              false,
-          },
-        ],
-        percentOwned: {
-          proportions: loan.loan_type === 'investment' ? 'Specified' : 'Equal',
-          owner:
-            loan.loan_type === 'investment'
-              ? loan.applicant_tax_benefit
-                  ?.map((ownership, i) => ({
-                    percent: executeMath(ownership),
-                    x_Party: quickliApiScenario.income[i].id,
-                  }))
-                  .filter((o) => o.percent) || []
-              : quickliApiScenario.income.map((app) => ({
-                  percent: 100 / quickliApiScenario.income.length,
-                  x_Party: app.id,
-                })),
-        },
-        security:
-          homeLoanLinkForLoan && homeLoanLinkForLoan.which_securities
-            ? (homeLoanLinkForLoan.which_securities
-                .map((securityLinkFlag, securityIndex) => {
-                  if (securityLinkFlag && quickliApiScenario.securities) {
-                    return {
-                      x_Security: quickliApiScenario.securities[securityIndex].id,
-                    };
-                  }
-                  return null;
-                })
-                .filter(
-                  Boolean,
-                ) as ExportableLIXIScenario['liability'][number]['security'])
-            : [],
-      });
-    }
+      ],
+      percentOwned: {
+        proportions: loan.loan_type === 'investment' ? 'Specified' : 'Equal',
+        owner:
+          loan.loan_type === 'investment'
+            ? loan.applicant_tax_benefit
+                ?.map((ownership, i) => ({
+                  percent: executeMath(ownership),
+                  x_Party: quickliApiScenario.income[i].id,
+                }))
+                .filter((o) => o.percent) || []
+            : quickliApiScenario.income.map((app) => ({
+                percent: 100 / quickliApiScenario.income.length,
+                x_Party: app.id,
+              })),
+      },
+      security:
+        homeLoanLinkForLoan?.which_security_ids
+          ?.map((secId) => ({ x_Security: secId })) ?? [],
+    });
   });
 
   // Business liabilities
