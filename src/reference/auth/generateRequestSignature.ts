@@ -25,7 +25,7 @@ async function importPrivateKey(pem: string): Promise<CryptoKey> {
 
 export type AuthCredentials = {
   clientId: string;
-  accessToken: string;
+  brokerAccessToken: string;
   keyId: string;
   privateKeyPem: string;
 };
@@ -61,7 +61,7 @@ export async function generateRequestSignature(
   return {
     headers: {
       'x-auth-integration-partner-id': credentials.clientId,
-      'x-auth-access-token': credentials.accessToken,
+      'x-auth-broker-access-token': credentials.brokerAccessToken,
       'x-auth-key-id': credentials.keyId,
       'x-auth-timestamp': timestamp,
       'x-auth-signature': signature,

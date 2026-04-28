@@ -66,7 +66,7 @@ export function Explorer({ config, selectedEndpoint, onSelectEndpoint, bridgeBod
         body,
         credentials: {
           clientId: config.clientId,
-          accessToken: config.accessToken,
+          brokerAccessToken: config.brokerAccessToken,
           keyId: config.keyId,
           privateKeyPem: config.privateKey,
         },

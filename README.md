@@ -42,7 +42,7 @@ The API uses RSA-SHA256 request signing. Every request includes five `X-Auth-*` 
 | Header | Description |
 |---|---|
 | `X-Auth-Integration-Partner-Id` | Your partner ID |
-| `X-Auth-Access-Token` | Your API access token |
+| `X-Auth-Broker-Access-Token` | Your broker access token |
 | `X-Auth-Key-Id` | ID of your registered RSA key pair |
 | `X-Auth-Timestamp` | ISO 8601 timestamp |
 | `X-Auth-Signature` | RSA-SHA256 signature of the canonical request |
