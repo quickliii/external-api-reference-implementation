@@ -18,7 +18,7 @@ export function CredentialsPanel({ config, onChange }: CredentialsPanelProps) {
       <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">Credentials</div>
       <div className="space-y-2.5">
         <Field label="Provider Client ID" tooltip="The OAuth client ID issued by the data provider. Identifies your application when requesting consent from end users." placeholder="" value={config.clientId} onChange={(v) => update('clientId', v)} />
-        <Field label="Broker Access Token" tooltip="A bearer token issued by the Quickli broker that authenticates your API requests." placeholder="bd32c01c-5ccf-4891-ac72-be95baa83a30" value={config.accessToken} onChange={(v) => update('accessToken', v)} />
+        <Field label="Broker Access Token" tooltip="A bearer token issued by the Quickli broker that authenticates your API requests." placeholder="bd32c01c-5ccf-4891-ac72-be95baa83a30" value={config.brokerAccessToken} onChange={(v) => update('brokerAccessToken', v)} />
       </div>
       <div className="space-y-2.5 mt-3 pt-3 border-t border-slate-200/60 dark:border-navy-600/30">
         <Field label="Key ID" tooltip="The identifier for your signing key pair, used to look up the corresponding public key when verifying request signatures." placeholder="key_..." value={config.keyId} onChange={(v) => update('keyId', v)} />

@@ -4,14 +4,14 @@ export const BASE_URL = 'https://external-api.quickli.com.au';
 
 export type StoredConfig = {
   clientId: string;
-  accessToken: string;
+  brokerAccessToken: string;
   keyId: string;
   privateKey: string;
 };
 
 const DEFAULT_CONFIG: StoredConfig = {
   clientId: '',
-  accessToken: '',
+  brokerAccessToken: '',
   keyId: '',
   privateKey: '',
 };
@@ -23,7 +23,7 @@ export function loadConfig(): StoredConfig {
     const parsed = JSON.parse(raw);
     return {
       clientId: typeof parsed.clientId === 'string' ? parsed.clientId : '',
-      accessToken: typeof parsed.accessToken === 'string' ? parsed.accessToken : '',
+      brokerAccessToken: typeof parsed.brokerAccessToken === 'string' ? parsed.brokerAccessToken : '',
       keyId: typeof parsed.keyId === 'string' ? parsed.keyId : '',
       privateKey: typeof parsed.privateKey === 'string' ? parsed.privateKey : '',
     };
@@ -37,5 +37,5 @@ export function saveConfig(config: StoredConfig): void {
 }
 
 export function hasCredentials(config: StoredConfig): boolean {
-  return Boolean(config.clientId.trim() && config.accessToken.trim() && config.keyId.trim() && config.privateKey.trim());
+  return Boolean(config.clientId.trim() && config.brokerAccessToken.trim() && config.keyId.trim() && config.privateKey.trim());
 }
