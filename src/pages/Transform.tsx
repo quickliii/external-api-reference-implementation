@@ -175,7 +175,7 @@ const EXAMPLES: Example[] = [
     },
   },
   {
-    label: 'Cross-collateralised portfolio',
+    label: 'Cross-collateralised',
     description: 'Cross-linked securities, dual income, mixed OO + investment with overlapping loan-security links',
     source: 'scenario',
     data: {
