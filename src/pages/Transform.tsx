@@ -209,8 +209,8 @@ const EXAMPLES: Example[] = [
         home_loan_security_links: [
           { id: 'link-1', which_security_ids: ['sec-1'], which_existing_home_loan_ids: ['ehl-1'], which_proposed_home_loan_ids: ['phl-1'] },
           { id: 'link-2', which_security_ids: ['sec-2', 'sec-3'], which_existing_home_loan_ids: ['ehl-2'], which_proposed_home_loan_ids: [] },
-          { id: 'link-3', which_security_ids: ['sec-4'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['hl-3'] },
-          { id: 'link-4', which_security_ids: ['sec-5'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['2'] },
+          { id: 'link-3', which_security_ids: ['sec-4'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['phl-1'] },
+          { id: 'link-4', which_security_ids: ['sec-5'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['phl-2'] },
         ],
       },
     },
