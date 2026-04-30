@@ -164,13 +164,54 @@ const EXAMPLES: Example[] = [
           ],
           liability: [
             { uniqueID: 'l-1', type: 'Credit Card', creditLimit: 15000, outstandingBalance: 2000, annualInterestRate: 20.99, repayment: [{ repaymentAmount: 300, repaymentFrequency: 'Monthly' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
-            { uniqueID: 'l-2', type: 'Mortgage Loan', outstandingBalance: 720000, annualInterestRate: 6.15, repayment: [{ repaymentAmount: 4400, repaymentFrequency: 'Monthly' }], remainingTerm: { duration: 27, units: 'Years' }, security: [{ x_RealEstateAsset: 'sec-1' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
-            { uniqueID: 'l-3', type: 'Mortgage Loan', outstandingBalance: 390000, annualInterestRate: 6.49, repayment: [{ repaymentAmount: 2110, repaymentFrequency: 'Monthly' }], remainingTerm: { duration: 25, units: 'Years' }, loanPurpose: { primaryPurpose: 'Investment Residential' }, security: [{ x_RealEstateAsset: 'sec-2' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
-            { uniqueID: 'l-4', type: 'Mortgage Loan', outstandingBalance: 510000, annualInterestRate: 6.29, repayment: [{ repaymentAmount: 2680, repaymentFrequency: 'Monthly' }], remainingTerm: { duration: 22, units: 'Years' }, loanPurpose: { primaryPurpose: 'Investment Residential' }, security: [{ x_RealEstateAsset: 'sec-3' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
+            { uniqueID: 'l-2', type: 'Mortgage Loan', creditLimit: 720000, outstandingBalance: 720000, annualInterestRate: 6.15, repayment: [{ repaymentAmount: 4400, repaymentFrequency: 'Monthly' }], remainingTerm: { duration: 27, units: 'Years' }, security: [{ x_RealEstateAsset: 'sec-1' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
+            { uniqueID: 'l-3', type: 'Mortgage Loan', creditLimit: 390000, outstandingBalance: 390000, annualInterestRate: 6.49, repayment: [{ repaymentAmount: 2110, repaymentFrequency: 'Monthly' }], remainingTerm: { duration: 25, units: 'Years' }, loanPurpose: { primaryPurpose: 'Investment Residential' }, security: [{ x_RealEstateAsset: 'sec-2' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
+            { uniqueID: 'l-4', type: 'Mortgage Loan', creditLimit: 510000, outstandingBalance: 510000, annualInterestRate: 6.29, repayment: [{ repaymentAmount: 2680, repaymentFrequency: 'Monthly' }], remainingTerm: { duration: 22, units: 'Years' }, loanPurpose: { primaryPurpose: 'Investment Residential' }, security: [{ x_RealEstateAsset: 'sec-3' }], percentOwned: { owner: [{ x_Party: 'app-1', percent: 100 }] } },
           ],
           address: [],
           loanDetails: [{ uniqueID: 'loan-1', amountRequested: 400000, term: { interestType: 'Variable', totalTermDuration: 30, totalTermUnits: 'Years' }, borrowers: { owner: [{ x_Party: 'app-1', percent: 100 }] }, loanPurpose: { primaryPurpose: 'Investment Residential' } }], otherIncome: [], relatedCompany: [],
         },
+      },
+    },
+  },
+  {
+    label: 'Cross-collateralised portfolio',
+    description: 'Cross-linked securities, dual income, mixed OO + investment with overlapping loan-security links',
+    source: 'scenario',
+    data: {
+      scenario: {
+        households: [{ id: 'hh-1', status: 'married', shared_with_households: [], num_adults: 2, num_dependants: 2 }],
+        income: [
+          { id: 'inc-1', which_household: 0, payg: 155000, bonus: 12000 },
+          { id: 'inc-2', which_household: 0, payg: 90000, overtime: 5000 },
+        ],
+        living_expenses: [{ id: 'hh-1', primary_residence: 0, use_detailed_basic_expense: true, simple_basic_expense: 0 }],
+        liabilities: [
+          { id: 'lia-1', loan_type: 'credit_card', limit: 12000, monthly_repayment: 300, rate: 21.99 },
+          { id: 'lia-2', loan_type: 'car', limit: 15000, monthly_repayment: 420, rate: 7.5 },
+        ],
+        self_employed_income: [],
+        existing_home_loans: [
+          { id: 'hl-1', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 700000, loan_balance: 520000, actual_rate: 5.99, term: 24, monthly_repayment: 3800 },
+          { id: 'hl-2', product_type: 'variable_package', loan_type: 'investment', loan_amount: 750000, loan_balance: 620000, actual_rate: 6.29, term: 26, monthly_repayment: 4100, applicant_tax_benefit: [100] },
+        ],
+        proposed_home_loans: [
+          { id: 'hl-3', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 960000, term: 30, lvr: 80 },
+          { id: 'hl-4', product_type: 'fixed_rate_3_year', loan_type: 'investment', loan_amount: 520000, term: 30, lvr: 80, interest_only_period: 3, applicant_tax_benefit: [100] },
+        ],
+        securities: [
+          { id: 'sec-1', property_purpose: 'owner_occupied', property_type: 'house', transaction_type: 'owns_with_mortgage', value: 950000, applicant_ownership: [50, 50] },
+          { id: 'sec-2', property_purpose: 'investment', property_type: 'apartment', transaction_type: 'owns_with_mortgage', value: 520000, weekly_rental_income: 450, applicant_ownership: [100] },
+          { id: 'sec-3', property_purpose: 'investment', property_type: 'house', transaction_type: 'owns_with_mortgage', value: 680000, weekly_rental_income: 580, applicant_ownership: [100] },
+          { id: 'sec-4', property_purpose: 'owner_occupied', property_type: 'house', transaction_type: 'purchasing', value: 1200000, applicant_ownership: [50, 50] },
+          { id: 'sec-5', property_purpose: 'investment', property_type: 'apartment', transaction_type: 'purchasing', value: 650000, weekly_rental_income: 520, applicant_ownership: [100] },
+        ],
+        home_loan_security_links: [
+          { id: 'link-1', which_security_ids: ['sec-1'], which_existing_home_loan_ids: ['hl-1'], which_proposed_home_loan_ids: ['hl-3'] },
+          { id: 'link-2', which_security_ids: ['sec-2', 'sec-3'], which_existing_home_loan_ids: ['hl-2'], which_proposed_home_loan_ids: [] },
+          { id: 'link-3', which_security_ids: ['sec-4'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['hl-3'] },
+          { id: 'link-4', which_security_ids: ['sec-5'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['hl-4'] },
+        ],
       },
     },
   },
