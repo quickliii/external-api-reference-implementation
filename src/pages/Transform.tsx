@@ -192,12 +192,12 @@ const EXAMPLES: Example[] = [
         ],
         self_employed_income: [],
         existing_home_loans: [
-          { id: 'hl-1', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 700000, loan_balance: 520000, actual_rate: 5.99, term: 24, monthly_repayment: 3800 },
-          { id: 'hl-2', product_type: 'variable_package', loan_type: 'investment', loan_amount: 750000, loan_balance: 620000, actual_rate: 6.29, term: 26, monthly_repayment: 4100, applicant_tax_benefit: [100] },
+          { id: 'ehl-1', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 700000, loan_balance: 520000, actual_rate: 5.99, term: 24, monthly_repayment: 3800 },
+          { id: 'ehl-2', product_type: 'variable_package', loan_type: 'investment', loan_amount: 750000, loan_balance: 620000, actual_rate: 6.29, term: 26, monthly_repayment: 4100, applicant_tax_benefit: [100] },
         ],
         proposed_home_loans: [
-          { id: 'hl-3', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 960000, term: 30, lvr: 80 },
-          { id: 'hl-4', product_type: 'fixed_rate_3_year', loan_type: 'investment', loan_amount: 520000, term: 30, lvr: 80, interest_only_period: 3, applicant_tax_benefit: [100] },
+          { id: 'phl-1', product_type: 'variable_package', loan_type: 'owner_occupied', loan_amount: 960000, term: 30, lvr: 80 },
+          { id: 'phl-2', product_type: 'fixed_rate_3_year', loan_type: 'investment', loan_amount: 520000, term: 30, lvr: 80, interest_only_period: 3, applicant_tax_benefit: [100] },
         ],
         securities: [
           { id: 'sec-1', property_purpose: 'owner_occupied', property_type: 'house', transaction_type: 'owns_with_mortgage', value: 950000, applicant_ownership: [50, 50] },
@@ -207,10 +207,10 @@ const EXAMPLES: Example[] = [
           { id: 'sec-5', property_purpose: 'investment', property_type: 'apartment', transaction_type: 'purchasing', value: 650000, weekly_rental_income: 520, applicant_ownership: [100] },
         ],
         home_loan_security_links: [
-          { id: 'link-1', which_security_ids: ['sec-1'], which_existing_home_loan_ids: ['hl-1'], which_proposed_home_loan_ids: ['hl-3'] },
-          { id: 'link-2', which_security_ids: ['sec-2', 'sec-3'], which_existing_home_loan_ids: ['hl-2'], which_proposed_home_loan_ids: [] },
+          { id: 'link-1', which_security_ids: ['sec-1'], which_existing_home_loan_ids: ['ehl-1'], which_proposed_home_loan_ids: ['phl-1'] },
+          { id: 'link-2', which_security_ids: ['sec-2', 'sec-3'], which_existing_home_loan_ids: ['ehl-2'], which_proposed_home_loan_ids: [] },
           { id: 'link-3', which_security_ids: ['sec-4'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['hl-3'] },
-          { id: 'link-4', which_security_ids: ['sec-5'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['hl-4'] },
+          { id: 'link-4', which_security_ids: ['sec-5'], which_existing_home_loan_ids: [], which_proposed_home_loan_ids: ['2'] },
         ],
       },
     },
