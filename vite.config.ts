@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/v3': {
-        target: 'http://localhost:3000',
+        target: 'https://external-api.quickli.com.au',
         changeOrigin: true,
         secure: true,
       },
