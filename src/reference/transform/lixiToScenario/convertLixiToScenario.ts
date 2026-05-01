@@ -12,7 +12,7 @@ function convertLixiToScenario(
     getHouseholdsAndLivingExpenses(apiScenario);
 
   const { liabilities } = getLiabilities(apiScenario);
-  const { home_loans, securities, home_loan_security_links } =
+  const { proposed_home_loans, existing_home_loans, securities, home_loan_security_links } =
     getHomeLoansAndSecurities(apiScenario);
   const { income, self_employed_income } = getIncomes(apiScenario);
   return {
@@ -23,7 +23,8 @@ function convertLixiToScenario(
     self_employed_income,
     securities,
     home_loan_security_links,
-    home_loans,
+    proposed_home_loans,
+    existing_home_loans,
     additional_info: {
       useDependantAges: households.some(
         (h) => !!h.dependants_age && h.dependants_age.some(Boolean),

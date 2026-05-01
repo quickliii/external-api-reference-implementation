@@ -133,19 +133,10 @@ export function Explorer({ config, selectedEndpoint, onSelectEndpoint, bridgeBod
     if (!Array.isArray(s.income) || s.income.length === 0) {
       items.push({ level: 'warning', message: 'scenario.income is missing or empty' });
     }
-    if (!Array.isArray(s.home_loans) || s.home_loans.length === 0) {
-      items.push({ level: 'warning', message: 'scenario.home_loans is missing or empty — no proposed loans' });
+    if (!Array.isArray(s.proposed_home_loans) || s.proposed_home_loans.length === 0) {
+      items.push({ level: 'warning', message: 'scenario.proposed_home_loans is missing or empty — no proposed loans' });
     } else {
-      const hasProposed = (s.home_loans as Array<Record<string, unknown>>).some(
-        (loan) => loan.existing_or_proposed === 'proposed',
-      );
-      if (!hasProposed) {
-        items.push({ level: 'warning', message: 'scenario.home_loans has no loan with existing_or_proposed: "proposed"' });
-      }
-
-      const proposedLoans = (s.home_loans as Array<Record<string, unknown>>).filter(
-        (loan) => loan.existing_or_proposed === 'proposed',
-      );
+      const proposedLoans = s.proposed_home_loans as Array<Record<string, unknown>>;
       for (const loan of proposedLoans) {
         const loanId = typeof loan.id === 'string' ? ` (${loan.id})` : '';
         if (loan.loan_amount == null || loan.loan_amount === '' || loan.loan_amount === 0) {

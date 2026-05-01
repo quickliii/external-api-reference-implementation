@@ -493,29 +493,42 @@ export interface QuickliApiLiability {
   lender?: string;
 }
 
-export interface QuickliApiHomeLoan {
+export type HomeLoanProductType =
+  | 'variable_package'
+  | 'fixed_rate_1_year'
+  | 'fixed_rate_2_year'
+  | 'fixed_rate_3_year'
+  | 'fixed_rate_4_year'
+  | 'fixed_rate_5_year'
+  | 'fixed_rate_7_year'
+  | 'fixed_rate_10_year';
+
+/** Fields shared by both proposed and existing home loans. */
+interface QuickliApiHomeLoanBase {
   id: string;
   ignore?: boolean;
-  product_type:
-    | 'variable_package'
-    | 'fixed_rate_1_year'
-    | 'fixed_rate_2_year'
-    | 'fixed_rate_3_year'
-    | 'fixed_rate_4_year'
-    | 'fixed_rate_5_year'
-    | 'fixed_rate_7_year'
-    | 'fixed_rate_10_year';
-  existing_or_proposed: 'existing' | 'proposed';
+  product_type: HomeLoanProductType;
   loan_type: string;
   loan_amount?: SmartNumber;
   actual_rate?: SmartNumber;
   term?: SmartNumber;
   interest_only_period?: SmartNumber;
-  lvr?: SmartNumber;
-  use_generic_rate?: boolean;
-  is_tax_deductible?: boolean;
   applicant_tax_benefit?: SmartNumber[];
   which_rentals?: (boolean | undefined)[];
+  is_tax_deductible?: boolean;
+  resi_or_commercial?: 'residential' | 'commercial';
+  ownership_modes?: Record<string, 'auto' | 'manual'>;
+}
+
+export interface QuickliApiProposedHomeLoan extends QuickliApiHomeLoanBase {
+  lvr?: SmartNumber;
+  lvr_behavior?: string;
+  override_rates?: boolean;
+  use_generic_rate?: boolean;
+  lender_apps_only_product_name?: string;
+}
+
+export interface QuickliApiExistingHomeLoan extends QuickliApiHomeLoanBase {
   lender?: string;
   loan_balance?: SmartNumber;
   monthly_repayment?: SmartNumber;
@@ -539,9 +552,9 @@ export interface QuickliApiSecurity {
 
 export interface QuickliApiHomeLoanSecurityLink {
   id: string;
-  which_securities: boolean[];
-  which_home_loans: boolean[];
-  which_color_id?: string;
+  which_security_ids?: string[];
+  which_proposed_home_loan_ids?: string[];
+  which_existing_home_loan_ids?: string[];
 }
 
 export interface QuickliApiSelfEmployedDetails {
@@ -622,7 +635,8 @@ export interface QuickliApiScenario {
   securities?: QuickliApiSecurity[];
   home_loan_security_links?: QuickliApiHomeLoanSecurityLink[];
   self_employed_income: QuickliApiSelfEmployedIncome[];
-  home_loans: QuickliApiHomeLoan[];
+  proposed_home_loans: QuickliApiProposedHomeLoan[];
+  existing_home_loans: QuickliApiExistingHomeLoan[];
   liabilities: QuickliApiLiability[];
   living_expenses: QuickliApiLivingExpenses[];
   additional_info?: {

@@ -54,9 +54,15 @@ export async function generateRequestSignature(
   // Canonical request: METHOD\nPATH\nTIMESTAMP\nBODY_HASH
   // PATH must not include query parameters — sign the bare path only
   const canonical = [method.toUpperCase(), path, timestamp, bodyHash].join('\n');
-  const key = await importPrivateKey(credentials.privateKeyPem);
-  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, encoder.encode(canonical));
-  const signature = btoa(String.fromCharCode(...new Uint8Array(sig)));
+
+  let signature = '';
+  try {
+    const key = await importPrivateKey(credentials.privateKeyPem);
+    const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, encoder.encode(canonical));
+    signature = btoa(String.fromCharCode(...new Uint8Array(sig)));
+  } catch {
+    // Send with empty signature — let the API reject it
+  }
 
   return {
     headers: {

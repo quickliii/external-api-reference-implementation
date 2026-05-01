@@ -23,60 +23,58 @@ function getLIXIRentalAndLoans(quickliApiScenario: QuickliApiScenario): {
   const address: ExportableLIXIScenario['address'] = [];
 
   // Proposed loans
-  quickliApiScenario.home_loans.forEach((loan) => {
-    if (loan.existing_or_proposed === 'proposed') {
-      loanDetails.push({
-        uniqueID: loan.id,
-        amountRequested: executeMath(loan.loan_amount) || null,
-        amountToBeFinanced: null,
-        lvr: executeMath(loan.lvr) || null,
-        loanType: 'Mortgage Loan',
-        taxDeductible:
-          loan.loan_type === 'investment' && !!loan.is_tax_deductible,
-        borrowers: {
-          proportions:
-            loan.loan_type === 'owner_occupied' ? 'Equal' : 'Specified',
-          owner:
-            loan.loan_type === 'investment'
-              ? loan.applicant_tax_benefit
-                  ?.map((ownership, i) => ({
-                    percent: executeMath(ownership),
-                    x_Party: quickliApiScenario.income[i].id,
-                  }))
-                  .filter((o) => o.percent) || []
-              : quickliApiScenario.income.map((app) => ({
-                  percent: 100 / quickliApiScenario.income.length,
-                  x_Party: app.id,
-                })) || [],
-        },
-        loanPurpose: {
-          primaryPurpose:
-            loan.loan_type === 'owner_occupied'
-              ? 'Owner Occupied'
-              : 'Investment Residential',
-        },
-        term: {
-          interestType: loan.interest_only_period ? 'Fixed' : 'Variable',
-          interestTypeDuration: executeMath(loan.interest_only_period) || null,
-          interestTypeUnits: 'Years',
-          paymentType: loan.interest_only_period
-            ? 'Interest Only'
-            : 'Principal and Interest',
-          paymentTypeDuration: loan.interest_only_period
-            ? executeMath(loan.interest_only_period)
-            : executeMath(loan.term),
-          paymentTypeUnits: 'Years',
-          totalTermDuration: executeMath(loan.term),
-          totalTermType: loan.interest_only_period
-            ? 'Total Term'
-            : 'Amortisation Term',
-          totalTermUnits: 'Years',
-        },
-      });
-    }
+  quickliApiScenario.proposed_home_loans.forEach((loan) => {
+    loanDetails.push({
+      uniqueID: loan.id,
+      amountRequested: executeMath(loan.loan_amount) || null,
+      amountToBeFinanced: null,
+      lvr: executeMath(loan.lvr) || null,
+      loanType: 'Mortgage Loan',
+      taxDeductible:
+        loan.loan_type === 'investment' && !!loan.is_tax_deductible,
+      borrowers: {
+        proportions:
+          loan.loan_type === 'owner_occupied' ? 'Equal' : 'Specified',
+        owner:
+          loan.loan_type === 'investment'
+            ? loan.applicant_tax_benefit
+                ?.map((ownership, i) => ({
+                  percent: executeMath(ownership),
+                  x_Party: quickliApiScenario.income[i].id,
+                }))
+                .filter((o) => o.percent) || []
+            : quickliApiScenario.income.map((app) => ({
+                percent: 100 / quickliApiScenario.income.length,
+                x_Party: app.id,
+              })) || [],
+      },
+      loanPurpose: {
+        primaryPurpose:
+          loan.loan_type === 'owner_occupied'
+            ? 'Owner Occupied'
+            : 'Investment Residential',
+      },
+      term: {
+        interestType: loan.interest_only_period ? 'Fixed' : 'Variable',
+        interestTypeDuration: executeMath(loan.interest_only_period) || null,
+        interestTypeUnits: 'Years',
+        paymentType: loan.interest_only_period
+          ? 'Interest Only'
+          : 'Principal and Interest',
+        paymentTypeDuration: loan.interest_only_period
+          ? executeMath(loan.interest_only_period)
+          : executeMath(loan.term),
+        paymentTypeUnits: 'Years',
+        totalTermDuration: executeMath(loan.term),
+        totalTermType: loan.interest_only_period
+          ? 'Total Term'
+          : 'Amortisation Term',
+        totalTermUnits: 'Years',
+      },
+    });
   });
 
-  quickliApiScenario.securities?.forEach((sec, index) => {
+  quickliApiScenario.securities?.forEach((sec) => {
     const propertyPurpose = sec.property_purpose ?? 'owner_occupied';
 
     const secPrimaryPurpose =
@@ -87,24 +85,22 @@ function getLIXIRentalAndLoans(quickliApiScenario: QuickliApiScenario): {
           : 'Investment';
 
     const homeLoanLinkForSec = quickliApiScenario.home_loan_security_links?.find(
-      (link) => !!link.which_securities?.[index],
+      (link) => link.which_security_ids?.includes(sec.id),
     );
 
     realEstateAsset.push({
       primaryPurpose: secPrimaryPurpose,
       primarySecurity:
         sec.transaction_type === 'purchasing' &&
-        quickliApiScenario.home_loans.some(
-          (l) =>
-            l.existing_or_proposed === 'proposed' &&
-            l.loan_type === 'investment',
+        quickliApiScenario.proposed_home_loans.some(
+          (l) => l.loan_type === 'investment',
         ),
       primaryUsage:
         secPrimaryPurpose === 'Business' && sec.rental_type === 'commercial'
           ? 'Commercial'
           : 'Residential',
       toBeSold: null,
-      toBeUsedAsSecurity: homeLoanLinkForSec?.which_securities?.[index] ?? null,
+      toBeUsedAsSecurity: homeLoanLinkForSec?.which_security_ids?.includes(sec.id) ?? null,
       transaction: transactionMapping[sec.transaction_type ?? 'purchasing'],
       uniqueID: sec.id,
       commercial: null,
